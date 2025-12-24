@@ -1,4 +1,4 @@
-import {createElement, render} from '../render.js';
+import {createElement} from '../render.js';
 import EventItemView from './event-item-view.js';
 import EventListItemView from './event-list-item-view.js';
 
@@ -7,8 +7,7 @@ function createEventListTemplate() {
     '<ul class="trip-events__list"></ul>'
   );
 }
-// добавить eventItem
-// создать список
+
 export default class EventListView {
   constructor ({listContainer, listLength}) {
     this.listContainer = listContainer;
