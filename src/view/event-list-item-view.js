@@ -1,12 +1,14 @@
 import {createElement} from '../render.js';
 
-function createBoardTemplate() {
-  return '<section class="board container"></section>';
+function createEventListItemTemplate() {
+  return (
+    '<li class="trip-events__item"></li>'
+  );
 }
 
-export default class BoardView {
+export default class EventListItemView {
   getTemplate() {
-    return createBoardTemplate();
+    return createEventListItemTemplate();
   }
 
   getElement() {
@@ -20,4 +22,5 @@ export default class BoardView {
   removeElement() {
     this.element = null;
   }
+
 }
