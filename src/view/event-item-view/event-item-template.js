@@ -62,7 +62,7 @@ function createEventTemplate(tripEvent, tripEventsModel) {
 }
 
 function getOffersTemplate(tripEvent) {
-  const offers =
+  const offers = s
 }
 
 export {createEventTemplate};
