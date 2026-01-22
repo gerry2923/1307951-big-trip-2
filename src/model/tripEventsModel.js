@@ -30,7 +30,9 @@ export default class TripEventsModel {
     return this.tripEvents.find((tripEvent) => tripEvent.id === tripEventId);
   }
 
-  getOffersByEventItem(tripEvent) {
-    return tripEvent.offers.filter();
+  getOffersByEvent(tripEvent) {
+    console.log(tripEvent.type);
+    const offersOfTripEvent = offers.find((offer) => offer.type === tripEvent.type).offers;
+    return tripEvent.offers.map((item) => {return offersOfTripEvent.find((offer) => offer.id === item)});
   }
 }

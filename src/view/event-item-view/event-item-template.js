@@ -39,11 +39,7 @@ function createEventTemplate(tripEvent, tripEventsModel) {
       <h4 class="visually-hidden">Offers:</h4>
 
       <ul class="event__selected-offers">
-        <li class="event__offer">
-          <span class="event__offer-title">Order Uber</span>
-          +€&nbsp;
-          <span class="event__offer-price">20</span>
-        </li>
+        ${getOffersOfTripEvent(tripEvent, tripEventsModel)}
       </ul>
 
       <button class="event__favorite-btn event__favorite-btn--active" type="button">
@@ -61,7 +57,18 @@ function createEventTemplate(tripEvent, tripEventsModel) {
   );
 }
 
-function getOffersTemplate(tripEvent) {
-  const offers = /* нужно добавить*/
+function getOffersOfTripEvent(tripEvent, tripEventsModel) {
+  const offers = tripEventsModel.getOffersByEvent(tripEvent);
+  let listContent = '';
+  offers.forEach((item) => {
+    listContent += `<li class="event__offer">
+          <span class="event__offer-title">${item.title}</span>
+          +€&nbsp;
+          <span class="event__offer-price">${item.price}</span>
+        </li>`
+  });
+
+  return listContent;
+};
 
 export {createEventTemplate};
