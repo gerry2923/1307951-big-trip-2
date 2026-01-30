@@ -1,26 +1,19 @@
-import {createElement} from '../../render.js';
-import { createEventTemplate } from './event-item-template.js';
+import { createEventItemTemplate } from './event-item-template.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
-export default class EventItemView {
+export default class EventItemView extends AbstractView{
+  #tripEventsModel = null;
+  #tripEvent = null;
   /** в конструктор передается объект с данными */
   constructor({tripEventsModel, tripEventId}) {
-    this.tripEventsModel = tripEventsModel;
-    this.tripEvent = this.tripEventsModel.getTripEventById(tripEventId);
+    super();
+    this.#tripEventsModel = tripEventsModel;
+    this.#tripEvent = this.#tripEventsModel.getTripEventById(tripEventId);
   }
 
-  getTemplate() {
-    return createEventTemplate(this.tripEvent, this.tripEventsModel);
+  get template() {
+    return createEventItemTemplate(this.#tripEvent, this.#tripEventsModel);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }

@@ -1,7 +1,7 @@
 import { convertDateFromat, shortenDateString, dateDifferenceHoursMinutes } from '../../utils.js';
 import { DATE_FORMAT } from '../../const.js';
 
-function createEventTemplate(tripEvent, tripEventsModel) {
+function createEventItemTemplate(tripEvent, tripEventsModel) {
   const dateFrom = tripEvent.dateFrom;
   const dateTo = tripEvent.dateTo;
 
@@ -72,4 +72,4 @@ function getOffersOfTripEvent(tripEvent, tripEventsModel) {
 }
 
 
-export {createEventTemplate};
+export {createEventItemTemplate};

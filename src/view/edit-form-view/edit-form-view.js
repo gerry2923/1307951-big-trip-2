@@ -1,29 +1,20 @@
 // import EventListItemView from './event-list-item-view.js';
-import {createElement} from '../../render.js';
+// import {createElement} from '../../render.js';
 import {createEditFormTemplate} from '../edit-form-view/edit-form-template.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
-export default class EditFormView {
-
+export default class EditFormView extends AbstractView{
+  #tripEventsModel = null;
+  #tripEvent = null;
   constructor ({tripEventsModel, tripEvent}) {
-    this.tripEventsModel = tripEventsModel;
-    this.tripEvent = tripEvent;
+    super();
+    this.#tripEventsModel = tripEventsModel;
+    this.#tripEvent = tripEvent;
 
   }
 
-  getTemplate() {
-    return createEditFormTemplate(this.tripEvent, this.tripEventsModel);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  get template() {
+    return createEditFormTemplate(this.#tripEvent, this.#tripEventsModel);
   }
 
 }

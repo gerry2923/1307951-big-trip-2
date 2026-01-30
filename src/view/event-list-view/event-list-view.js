@@ -1,29 +1,22 @@
-import {createElement, render, RenderPosition} from '../../render.js';
+import {render, RenderPosition} from '../../framework/render.js';
 import EventItemView from '../event-item-view/event-item-view.js';
 import EventListItemView from '../event-list-item-view/event-list-item-view.js';
 import { createEventListTemplate } from './event-list-template.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
-export default class EventListView {
+export default class EventListView extends AbstractView{
+  #listContainer = null;
+  #tripEventsModel = null;
   constructor ({listContainer, tripEventsModel}) {
-    this.listContainer = listContainer;
-    // this.listLength = listLength;
-    this.tripEventsModel = tripEventsModel;
+    super();
+    this.#listContainer = listContainer;
+    this.#tripEventsModel = tripEventsModel;
   }
 
-  getTemplate() {
+  get template() {
     return createEventListTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeAllElements() {
-    this.element = null;
-  }
 
   removeOneElementByIndex(index) {
     document.querySelector(`li:nth-child(${index + 1})`).remove();
@@ -34,8 +27,7 @@ export default class EventListView {
   }
 
   addListItemBefore() {
-    // this.getElement().prepend((new EventListItemView()).getElement());
-    render(new EventListItemView(), this.getElement(), RenderPosition.AFTERBEGIN);
+    render(new EventListItemView(), this.element, RenderPosition.AFTERBEGIN);
   }
 
   /**
@@ -43,26 +35,26 @@ export default class EventListView {
  */
   addListItems() {
     const fragment = document.createDocumentFragment();
-    const dataLength = this.tripEventsModel.getTripEventsLength();
+    const dataLength = this.#tripEventsModel.getTripEventsLength();
     for (let i = 0; i < dataLength; i++) {
-      fragment.appendChild((new EventListItemView()).getElement());
+      fragment.appendChild((new EventListItemView()).element);
     }
 
-    this.getElement().appendChild(fragment);
+    this.element.appendChild(fragment);
   }
 
   /**
    * добавляет внутрь каждого li div с калссом 'event'
    */
   fillWithEventItems() {
-    const dataLength = this.tripEventsModel.getTripEventsLength();
-    const eventsData = this.tripEventsModel.getTripEvents();
+    const dataLength = this.#tripEventsModel.getTripEventsLength();
+    const eventsData = this.#tripEventsModel.getTripEvents();
     /** взяли массив из уже добавленных li */
-    const tripEvents = Array.from(this.getElement().querySelectorAll('li'));
+    const tripEvents = Array.from(this.element.querySelectorAll('li'));
 
     for (let i = 0; i < dataLength; i++) {
-      // tripEvents[i].appendChild((new EventItemView({tripEventsModel : this.tripEventsModel, tripEventId : eventsData[i].id}).getElement()));
-      render((new EventItemView({tripEventsModel : this.tripEventsModel, tripEventId : eventsData[i].id})), tripEvents[i]);
+
+      render((new EventItemView({tripEventsModel : this.#tripEventsModel, tripEventId : eventsData[i].id})), tripEvents[i]);
     }
 
   }

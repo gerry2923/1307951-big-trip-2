@@ -1,4 +1,4 @@
-import { render } from '../render.js';
+import { render } from '../framework/render.js';
 import EventListView from '../view/event-list-view/event-list-view.js';
 import SortView from '../view/sort-view/sort-view.js';
 import EditFormView from '../view/edit-form-view/edit-form-view.js';
@@ -25,10 +25,12 @@ export default class EventContentPresenter {
 
   setSortFormElement() {
     this.sortForm = new SortView();
+
     if (this.eventContainer.childElementCount === 1) {
       this.eventContainer.appendChild(this.sortForm);
     } else if (this.eventContainer.childElementCount > 1) {
-      this.eventContainer.insertBefore(this.sortForm.getElement(), this.eventContainer.firstElementChild.nextElementSibling);
+
+      this.eventContainer.insertBefore(this.sortForm.element, this.eventContainer.firstElementChild.nextElementSibling);
     }
   }
 
@@ -39,7 +41,7 @@ export default class EventContentPresenter {
     /**  создаем форму редактирования по id модели (для примера берем первую модель) index = 0*/
     const index = 0;
     this.editForm = new EditFormView({tripEventsModel:this.tripEventsModel, tripEvent: this.tripEventsModel.getTripEvents()[index]});
-    render(this.editForm, this.eventList.getElement().firstElementChild);
+    render(this.editForm, this.eventList.element.firstElementChild);
     /** удаляем этот элемент из списка, тк теперь он в форме редактирвания */
     this.eventList.removeOneElementByIndex(index + 1);
   }
