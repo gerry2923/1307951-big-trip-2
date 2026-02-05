@@ -22,7 +22,7 @@ export default class EventItemPresenter {
       }
     };
 
-    const tripEventComponent = new EventItemView({ eventParam: this.#eventParameters, onClick : () => {
+    const tripEventComponent = new EventItemView({ eventParam: this.#eventParameters, onArrowToggleFormClick : () => {
       replaceEventToFrom();
       document.addEventListener('keydown', escKeyDownHandler);
     }});

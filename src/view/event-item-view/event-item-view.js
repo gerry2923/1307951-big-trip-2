@@ -6,12 +6,12 @@ export default class EventItemView extends AbstractView{
 
   /** в конструктор передается объект с данными */
   #eventParam = null;
-  #handleOnClick = null;
+  #handleOnArrowToggleFrom = null;
   // #element = null;
-  constructor({eventParam, onClick}) {
+  constructor({eventParam, onArrowToggleFormClick}) {
     super();
     this.#eventParam = eventParam;
-    this.#handleOnClick = onClick;
+    this.#handleOnArrowToggleFrom = onArrowToggleFormClick;
     this.#initEventListeners();
   }
 
@@ -26,13 +26,13 @@ export default class EventItemView extends AbstractView{
     });
   }
 
-  #onHandleClick = (evt) => {
+  #onHandleArrowClick = (evt) => {
     evt.preventDefault();
-    this.#handleOnClick();
+    this.#handleOnArrowToggleFrom();
   };
 
   #initEventListeners() {
-    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleClick);
+    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleArrowClick);
   }
 
 }
