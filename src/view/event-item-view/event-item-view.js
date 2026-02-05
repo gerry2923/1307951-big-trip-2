@@ -12,8 +12,7 @@ export default class EventItemView extends AbstractView{
     super();
     this.#eventParam = eventParam;
     this.#handleOnClick = onClick;
-    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleClick);
-
+    this.#initEventListeners();
   }
 
   get template() {
@@ -31,5 +30,9 @@ export default class EventItemView extends AbstractView{
     evt.preventDefault();
     this.#handleOnClick();
   };
+
+  #initEventListeners() {
+    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleClick);
+  }
 
 }

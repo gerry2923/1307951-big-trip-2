@@ -9,8 +9,7 @@ export default class EditFormView extends AbstractView{
     super();
     this.#formParam = formParam;
     this.#onEditHandler = onEditClick;
-    this.element.querySelector('.event__save-btn').addEventListener('submit', this.#onEditFormClick);
-    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onEditFormClick);
+    this.#initEventListeners();
   }
 
   get template() {
@@ -29,5 +28,10 @@ export default class EditFormView extends AbstractView{
     evt.preventDefault();
     this.#onEditHandler();
   };
+
+  #initEventListeners() {
+    this.element.querySelector('.event__save-btn').addEventListener('submit', this.#onEditFormClick);
+    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onEditFormClick);
+  }
 
 }
