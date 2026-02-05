@@ -1,22 +1,11 @@
-// import EventListItemView from './event-list-item-view.js';
-import {createElement} from '../../render.js';
 import {createAddNewPointWithoutDestinationTemplate} from '../add-new-point/add-new-point-without-destination-template.js';
+import AbstractView from '../../framework/view/abstract-view.js';
 
-export default class AddNewPoinWithoutDestinationtView {
-  getTemplate() {
+
+export default class AddNewPoinWithoutDestinationtView extends AbstractView{
+  get template() {
     return createAddNewPointWithoutDestinationTemplate();
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 
 }

@@ -1,26 +1,38 @@
-import {createElement} from '../../render.js';
-import { createEventTemplate } from './event-item-template.js';
+import { createEventItemTemplate } from './event-item-template.js';
+import AbstractView from '../../framework/view/abstract-view.js';
+// import { createElement } from '../../framework/render.js';
 
-export default class EventItemView {
+export default class EventItemView extends AbstractView{
+
   /** в конструктор передается объект с данными */
-  constructor({tripEventsModel, tripEventId}) {
-    this.tripEventsModel = tripEventsModel;
-    this.tripEvent = this.tripEventsModel.getTripEventById(tripEventId);
+  #eventParam = null;
+  #handleOnArrowToggleFrom = null;
+  // #element = null;
+  constructor({eventParam, onArrowToggleFormClick}) {
+    super();
+    this.#eventParam = eventParam;
+    this.#handleOnArrowToggleFrom = onArrowToggleFormClick;
+    this.#initEventListeners();
   }
 
-  getTemplate() {
-    return createEventTemplate(this.tripEvent, this.tripEventsModel);
+  get template() {
+    return createEventItemTemplate({
+      dateFrom: this.#eventParam.dateFrom,
+      dateTo: this.#eventParam.dateTo,
+      basePrice: this.#eventParam.basePrice,
+      type: this.#eventParam.type,
+      title: this.#eventParam.title,
+      offers: this.#eventParam.offers
+    });
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #onHandleArrowClick = (evt) => {
+    evt.preventDefault();
+    this.#handleOnArrowToggleFrom();
+  };
 
-    return this.element;
+  #initEventListeners() {
+    this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleArrowClick);
   }
 
-  removeElement() {
-    this.element = null;
-  }
 }

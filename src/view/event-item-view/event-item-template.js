@@ -1,9 +1,10 @@
 import { convertDateFromat, shortenDateString, dateDifferenceHoursMinutes } from '../../utils.js';
 import { DATE_FORMAT } from '../../const.js';
 
-function createEventTemplate(tripEvent, tripEventsModel) {
-  const dateFrom = tripEvent.dateFrom;
-  const dateTo = tripEvent.dateTo;
+/**TODO соотнести параметры с аргументами */
+// function createEventItemTemplate(tripEvent, tripEventsModel) {
+function createEventItemTemplate({dateFrom, dateTo, basePrice, type, title, offers}) {
+
 
   const dateFromYearMonthDate = convertDateFromat(dateFrom, DATE_FORMAT['YYYY-MM-DD']);
   const dateFromMonthDate = convertDateFromat(dateFrom, DATE_FORMAT['MMM DD']);
@@ -14,14 +15,16 @@ function createEventTemplate(tripEvent, tripEventsModel) {
   const dateToHoursMinutes = convertDateFromat(dateTo, DATE_FORMAT['HH:mm']);
 
   return (
-    `<div class="event">
+
+    `<li class="trip-events__item">
+      <div class="event">
       <time class="event__date" datetime="${dateFromYearMonthDate}">${dateFromMonthDate}</time>
 
       <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/${tripEvent.type}.png" alt="Event type icon">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
 
-      <h3 class="event__title">${tripEventsModel.getTripTitle(tripEvent)}</h3>
+      <h3 class="event__title">${title}</h3>
 
       <div class="event__schedule">
         <p class="event__time">
@@ -33,13 +36,13 @@ function createEventTemplate(tripEvent, tripEventsModel) {
       </div>
 
       <p class="event__price">
-        €&nbsp;<span class="event__price-value">${tripEvent.basePrice}</span>
+        €&nbsp;<span class="event__price-value">${basePrice}</span>
       </p>
 
       <h4 class="visually-hidden">Offers:</h4>
 
       <ul class="event__selected-offers">
-        ${getOffersOfTripEvent(tripEvent, tripEventsModel)}
+        ${getOffersOfTripEvent(offers)}
       </ul>
 
       <button class="event__favorite-btn event__favorite-btn--active" type="button">
@@ -53,18 +56,17 @@ function createEventTemplate(tripEvent, tripEventsModel) {
         <span class="visually-hidden">Open event</span>
       </button>
 
-    </div>`
+    </div></li>`
   );
 }
 
-function getOffersOfTripEvent(tripEvent, tripEventsModel) {
-  const offers = tripEventsModel.getOffersByEvent(tripEvent);
+function getOffersOfTripEvent(offers) {
   let listContent = '';
-  offers.forEach((item) => {
+  offers.forEach((offer) => {
     listContent += `<li class="event__offer">
-          <span class="event__offer-title">${item.title}</span>
+          <span class="event__offer-title">${offer.title}</span>
           +€&nbsp;
-          <span class="event__offer-price">${item.price}</span>
+          <span class="event__offer-price">${offer.price}</span>
         </li>`;
   });
 
@@ -72,4 +74,4 @@ function getOffersOfTripEvent(tripEvent, tripEventsModel) {
 }
 
 
-export {createEventTemplate};
+export {createEventItemTemplate};

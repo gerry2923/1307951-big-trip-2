@@ -1,55 +1,84 @@
-import { render } from '../render.js';
-import EventListView from '../view/event-list-view/event-list-view.js';
+import { render } from '../framework/render.js';
 import SortView from '../view/sort-view/sort-view.js';
-import EditFormView from '../view/edit-form-view/edit-form-view.js';
+import EventListPresenter from './event-list-presenter.js';
+import EventItemPresenter from './event-item-presenter.js';
 
 
 export default class EventContentPresenter {
+  #eventContainer = null;
+  #tripEventsModel = null;
+  #eventListPresenter = null;
+  #eventItemPresenters = [];
+  #tripEvents = null;
+
   constructor({eventsContainer, tripEventsModel}) {
-    this.eventContainer = eventsContainer;
-    // this.listLength = listLength;
-    this.tripEventsModel = tripEventsModel;
+    this.#eventContainer = eventsContainer;
+    this.#tripEventsModel = tripEventsModel;
 
   }
 
-  setListLength (length) {
-    this.listLength = length;
+  #setEventListElement() {
+    this.#eventListPresenter = new EventListPresenter({listContainer: this.#eventContainer});
+    this.#eventListPresenter.init();
+    this.#fillListWithEventElements();
   }
 
-  setEventListElement() {
-    // this.eventList = new EventListView({ listContainer: this.eventContainer, listLength: this.listLength });
-    this.eventList = new EventListView({ listContainer: this.eventContainer, tripEventsModel: this.tripEventsModel });
-    render(this.eventList, this.eventContainer);
-    this.eventList.init();
+  #prepareEventArguments(tripEventModel) {
+    return {
+      dateFrom: tripEventModel.dateFrom,
+      dateTo: tripEventModel.dateTo,
+      basePrice: tripEventModel.basePrice,
+      type: tripEventModel.type,
+      title: this.#tripEventsModel.getTripTitle(tripEventModel),
+      offers: this.#tripEventsModel.getOffersByEvent(tripEventModel),
+    };
   }
 
-  setSortFormElement() {
+  #prepareFormArguments(tripEventModel) {
+    return {
+      dateFrom: tripEventModel.dateFrom,
+      dateTo: tripEventModel.dateTo,
+      basePrice: tripEventModel.basePrice,
+      type: tripEventModel.type,
+      destination: this.#tripEventsModel.getDestinationPoint(tripEventModel.destination),
+      allOffers: this.#tripEventsModel.getAllOffersByType(tripEventModel.type),
+      appliedOffers: this.#tripEventsModel.getOffersByEvent(tripEventModel)
+    };
+  }
+
+  #fillListWithEventElements() {
+    this.#tripEvents.forEach((tripEventModel) => {
+      const eventParam = this.#prepareEventArguments(tripEventModel);
+      const formParam = this.#prepareFormArguments(tripEventModel);
+
+      const eventItemPresenter = new EventItemPresenter({
+        listContainer: this.#eventListPresenter.element,
+        eventParameters: eventParam,
+        formParameters: formParam });
+
+      eventItemPresenter.init();
+
+      this.#eventItemPresenters.push(eventItemPresenter);
+    });
+  }
+
+  #setSortFormElement() {
     this.sortForm = new SortView();
-    if (this.eventContainer.childElementCount === 1) {
-      this.eventContainer.appendChild(this.sortForm);
-    } else if (this.eventContainer.childElementCount > 1) {
-      this.eventContainer.insertBefore(this.sortForm.getElement(), this.eventContainer.firstElementChild.nextElementSibling);
+
+    if (this.#eventContainer.childElementCount === 1) {
+      render(this.sortForm, this.#eventContainer);
+      // this.#eventContainer.appendChild(this.sortForm);
+
+    } else if (this.#eventContainer.childElementCount > 1) {
+
+      this.#eventContainer.insertBefore(this.sortForm.element, this.#eventContainer.firstElementChild.nextElementSibling);
     }
   }
 
-  /* Для демонстрации добавляем в форму редактирования первый элемент*/
-
-  setEditFormElement() {
-    this.eventList.addListItemBefore();
-    /**  создаем форму редактирования по id модели (для примера берем первую модель) index = 0*/
-    const index = 0;
-    this.editForm = new EditFormView({tripEventsModel:this.tripEventsModel, tripEvent: this.tripEventsModel.getTripEvents()[index]});
-    render(this.editForm, this.eventList.getElement().firstElementChild);
-    /** удаляем этот элемент из списка, тк теперь он в форме редактирвания */
-    this.eventList.removeOneElementByIndex(index + 1);
-  }
-
-  // TODO: добавить объекты событий
-
   init() {
-    this.setEventListElement();
-    this.setSortFormElement();
-    this.setEditFormElement();
+    this.#tripEvents = [...this.#tripEventsModel.getTripEvents()];
+    this.#setEventListElement();
+    this.#setSortFormElement();
   }
 
 }
