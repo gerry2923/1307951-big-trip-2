@@ -1,4 +1,5 @@
 import { getRandomArrayElement } from '../utils.js';
+import {nanoid} from 'nanoid';
 
 const tripEvents = [
   {
@@ -86,7 +87,11 @@ const tripEvents = [
  * @returns {obj}
  */
 function getRundomTripEvent() {
-  return getRandomArrayElement(tripEvents);
+
+  return {
+    id: nanoid(),
+    ...getRandomArrayElement(tripEvents)
+  };
 }
 
 export { getRundomTripEvent };
