@@ -10,13 +10,13 @@ export default class MainPresenter {
 
   init() {
     const header = new HeaderPresenter({headerContainer: this.headerContainer});
-    header.init();
+    header.init(this.tripEventsModel);
 
     const eventContent = new EventContentPresenter({
       eventsContainer: this.eventsContainer,
-      // listLength: eventListLength,
       tripEventsModel: this.tripEventsModel,
     });
+
     eventContent.init();
   }
 }

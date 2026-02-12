@@ -1,14 +1,17 @@
-import { getRundomTripEvent } from '../mock/mockTripEvent.js';
+import { getRundomTripEvent, getRundomTripEventArray } from '../mock/mockTripEvent.js';
 import { destinationPoints } from '../mock/mockDestination.js';
 import { offers } from '../mock/mockOffers.js';
 import { NUMBER_OF_TRIP_EVENTS } from '../const.js';
+import { updateItem } from '../utils/common.js';
 
 
 export default class TripEventsModel {
 
   #tripEvents = null;
   constructor() {
-    this.#tripEvents = Array.from({length: NUMBER_OF_TRIP_EVENTS}, getRundomTripEvent);
+    this.#tripEvents = getRundomTripEventArray(NUMBER_OF_TRIP_EVENTS);
+    console.log(this.#tripEvents);
+    // this.#tripEvents = Array.from({length: NUMBER_OF_TRIP_EVENTS}, getRundomTripEvent);
   }
 
   /**
@@ -43,5 +46,9 @@ export default class TripEventsModel {
 
   getDestinationPoint(destId) {
     return destinationPoints.find((item) => item.id === destId);
+  }
+
+  update(updateTripEvent) {
+    this.#tripEvents = updateItem(this.#tripEvents, updateTripEvent);
   }
 }

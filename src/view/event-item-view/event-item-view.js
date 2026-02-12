@@ -4,23 +4,27 @@ import AbstractView from '../../framework/view/abstract-view.js';
 
 export default class EventItemView extends AbstractView{
 
-  /** в конструктор передается объект с данными */
   #eventParam = null;
-  #handleOnArrowToggleFrom = null;
-  // #element = null;
-  constructor({eventParam, onArrowToggleFormClick}) {
+  #handleOnArrowDownClick = null;
+  #handleOnFavoriteClick = null;
+  #handleOnEscKeyClick = null;
+  // #tripEvent = null;
+
+
+  constructor({eventParam, onArrowDownClick, onFavoriteClick/**,onEscKeyClick */}) {
     super();
+    // this.#tripEvent = tripEvent;
     this.#eventParam = eventParam;
-    this.#handleOnArrowToggleFrom = onArrowToggleFormClick;
+
+    this.#handleOnArrowDownClick = onArrowDownClick;
+    this.#handleOnFavoriteClick = onFavoriteClick;
+    // this.#handleOnEscKeyClick = onEscKeyClick;
     this.#initEventListeners();
   }
 
   get template() {
     return createEventItemTemplate({
-      dateFrom: this.#eventParam.dateFrom,
-      dateTo: this.#eventParam.dateTo,
-      basePrice: this.#eventParam.basePrice,
-      type: this.#eventParam.type,
+      eventModel: this.#eventParam.eventModel,
       title: this.#eventParam.title,
       offers: this.#eventParam.offers
     });
@@ -28,11 +32,26 @@ export default class EventItemView extends AbstractView{
 
   #onHandleArrowClick = (evt) => {
     evt.preventDefault();
-    this.#handleOnArrowToggleFrom();
+    this.#handleOnArrowDownClick();
   };
 
+
+  #onFavouriteClick = (evt) => {
+    evt.preventDefault();
+    console.log('click1');
+    this.#handleOnFavoriteClick();
+  };
+
+  // #onEscKeyPress = (evt) => {
+  //   this.#handleOnEscKeyClick(evt);
+  // };
+  /** При нажании на кнопку Favourite  */
+
   #initEventListeners() {
+
     this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleArrowClick);
+    this.element.querySelector('.event__favorite-btn').addEventListener('pointerdown', this.#onFavouriteClick);
+    // document.addEventListener('keydown', this.#onEscKeyPress);
   }
 
 }

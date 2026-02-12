@@ -1,9 +1,10 @@
 import { DATE_FORMAT } from '../../const.js';
 // import { destinationPoints } from '../../mock/mockDestination.js';
-import { convertDateFromat } from '../../utils.js';
+import { convertDateFromat } from '../../utils/event.js';
 
 
-function createEditFormTemplate({dateFrom, dateTo, basePrice, type, destination, allOffers, appliedOffers}) {
+function createEditFormTemplate({eventModel, destination, allOffers, appliedOffers}) {
+  const {dateFrom, dateTo, basePrice, type} = eventModel;
   const fromDate = convertDateFromat(dateFrom, DATE_FORMAT['YY/MM/DD HH:mm']);
   const toDate = convertDateFromat(dateTo, DATE_FORMAT['YY/MM/DD HH:mm']);
 
@@ -114,7 +115,7 @@ function createEditFormTemplate({dateFrom, dateTo, basePrice, type, destination,
               value="${basePrice}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+          <button class="event__save-btn  btn  btn--blue" type="button">Save</button>
           <button class="event__reset-btn" type="reset">Delete</button>
           <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>

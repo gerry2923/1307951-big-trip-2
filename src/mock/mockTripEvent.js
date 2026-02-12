@@ -1,4 +1,5 @@
-import { getRandomArrayElement } from '../utils.js';
+import { getRandomArrayElement } from '../utils/common.js';
+import {nanoid} from 'nanoid';
 
 const tripEvents = [
   {
@@ -16,8 +17,8 @@ const tripEvents = [
   {
     id: 'f4b62099-293f-4c3d-a702-94eec4a2808c',
     basePrice: 1100,
-    dateFrom: '2019-07-10T22:55:56.845Z',
-    dateTo: '2019-07-11T11:22:13.375Z',
+    dateFrom: '2026-02-05T22:55:56.845Z',
+    dateTo: '2026-02-06T11:22:13.375Z',
     destination: 'b2c3d4e5-f6g7-8901-bcde-f23456789012',
     isFavorite: false,
     offers: [
@@ -67,8 +68,8 @@ const tripEvents = [
   {
     id: 'j8f064dd-6d7j-8g7h-e146-d8iig8e6c24g',
     basePrice: 950,
-    dateFrom: '2019-07-20T16:45:30.234Z',
-    dateTo: '2019-07-20T19:10:15.567Z',
+    dateFrom: '2026-02-20T16:45:30.234Z',
+    dateTo: '2026-02-20T19:10:15.567Z',
     destination: 'e5f6g7h8-i9j0-1234-ef01-567890123456',
     isFavorite: false,
     offers: [
@@ -86,7 +87,37 @@ const tripEvents = [
  * @returns {obj}
  */
 function getRundomTripEvent() {
+  // return {
+  //   id: nanoid(),
+  //   ...getRandomArrayElement(tripEvents)
+  // };
+
   return getRandomArrayElement(tripEvents);
 }
 
-export { getRundomTripEvent };
+/** Проверка уникальности по id объекта */
+function isUnique(objectsArray) {
+  const unique = objectsArray.reduce((accumulator, current) => {
+    // const isIdEqual = (element) => element.id
+    if (accumulator.findIndex((object) => object.id === current.id) === -1) {
+    // if (accumulator.findIndex((object) => object.id === current.id)) === -1) {
+      accumulator.push(current);
+    }
+    return accumulator;
+  }, []);
+  return unique;
+}
+
+function getRundomTripEventArray(arrayLength) {
+
+  let tripEventsArray = [];
+
+  while (tripEventsArray.length !== arrayLength) {
+    tripEventsArray.push(getRundomTripEvent());
+    tripEventsArray = tripEventsArray.filter((v, i, arr) => arr.indexOf(v) === i);
+  }
+
+  return tripEventsArray;
+}
+
+export { getRundomTripEvent, getRundomTripEventArray };

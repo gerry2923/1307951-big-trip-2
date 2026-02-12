@@ -6,3 +6,10 @@ export const DATE_FORMAT = {
   'HH:mm':'HH:mm',
   'YY/MM/DD HH:mm':'YY/MM/DD HH:mm',
 };
+
+export const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};

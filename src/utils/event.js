@@ -1,9 +1,5 @@
 import dayjs from 'dayjs';
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
 // тут нужно бы проверить строку dueDate на число символов, чтобы формат соотвествовал.!
 
 /**
@@ -11,7 +7,6 @@ function getRandomArrayElement(items) {
  * @param {string} - строка нового формата даты
  * @returns {string} возвращает строку в формате @dateFormat
  */
-
 function convertDateFromat(dueDate, dateFormat) {
   return dueDate ? dayjs(dueDate).format(dateFormat) : '';
 }
@@ -90,8 +85,21 @@ function dateDifferenceHoursMinutes(date1, date2) {
   return finalDifference;
 }
 
-function isTaskExpired(dueDate) {
+function isEventDateExpired(dueDate) {
   return dueDate && dayjs().isAfter(dueDate, 'D');
 }
 
-export { getRandomArrayElement, isTaskExpired, convertDateFromat, shortenDateString, dateDifferenceHoursMinutes };
+function isEventDateInPresent(dueDateStart, dueDateEnd) {
+  const condition1 = dayjs().isSame(dueDateStart) || dayjs().isAfter(dueDateStart);
+  const condition2 = dayjs().isSame(dueDateEnd) || dayjs().isBefore(dueDateEnd);
+  const condition3 = dueDateEnd && dueDateStart;
+  return condition1 && condition2 && condition3;
+}
+
+
+function isEventDateInFuture(dueDate) {
+  return dueDate && dayjs().isBefore(dueDate, 'D');
+}
+
+
+export {isEventDateExpired, isEventDateInPresent, isEventDateInFuture, convertDateFromat, shortenDateString, dateDifferenceHoursMinutes };

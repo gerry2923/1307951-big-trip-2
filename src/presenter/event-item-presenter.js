@@ -1,49 +1,144 @@
-import { render, replace } from '../framework/render.js';
+import { render, replace, remove } from '../framework/render.js';
 import EditFormView from '../view/edit-form-view/edit-form-view.js';
 import EventItemView from '../view/event-item-view/event-item-view.js';
+
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITITNG'
+};
 
 export default class EventItemPresenter {
   #listContainer = null;
   #eventParameters = null;
   #formParameters = null;
 
-  constructor ({listContainer, eventParameters, formParameters}) {
+  #tripEventComponent = null; // EventItemView
+
+  #editFormEventComponent = null;
+  #tripEvent = null; // dataFromModel
+  #handleDataChange = null;
+  #handleModeChange = null;
+  #mode = Mode.DEFAULT;
+
+  constructor ({listContainer, eventParameters, formParameters, onDataChange, onModeChange}) {
     this.#listContainer = listContainer;
     this.#eventParameters = eventParameters;
     this.#formParameters = formParameters;
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   #renderItemEvent () {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFromToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
 
-    const tripEventComponent = new EventItemView({ eventParam: this.#eventParameters, onArrowToggleFormClick : () => {
-      replaceEventToFrom();
-      document.addEventListener('keydown', escKeyDownHandler);
-    }});
+    const prevEventComponent = this.#tripEventComponent;
+    const prevFormComponent = this.#editFormEventComponent;
 
-    const eventEditFormComponent = new EditFormView({formParam : this.#formParameters, onEditClick: () => {
-      replaceFromToEvent();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }});
+    this.#tripEventComponent = new EventItemView({
+      eventParam: this.#eventParameters,
+      onArrowDownClick: this.#handleArrowDownClick,
+      onFavoriteClick: this.#handleFavouriteClick,
+      // onEscKeyClick: this.#escKeyDownHandler,
+    });
 
-    function replaceFromToEvent() {
-      replace(tripEventComponent, eventEditFormComponent);
+    this.#editFormEventComponent = new EditFormView({
+      tripEvent: this.#tripEvent,
+      formParam: this.#formParameters,
+      onFormSubmit: this.#handleFormSubmit,
+      onEditClick: this.#handleArrowUpClick,
+      // onEditClick: this.#replaceFromToEvent,
+      // onEscKeyClick: this.#escKeyDownHandler,
+    });
+
+    /** Если компонент не создан и он новый, то отрисовываем только что созданный компонент*/
+    if (prevEventComponent === null || prevFormComponent === null) {
+      render(this.#tripEventComponent, this.#listContainer);
+      return;
     }
 
-    function replaceEventToFrom() {
-      replace(eventEditFormComponent, tripEventComponent);
+    /** проверяем, есть ли "старый компонент" на странице,
+     * если есть, то заменяем старый на новый, только что созданный
+     * тоже самое делаем с компонентом формы
+     */
+
+    if(this.#mode === Mode.DEFAULT) {
+    // if(this.#listContainer.contains(prevEventComponent.element)) {
+      replace(this.#tripEventComponent, prevEventComponent);
     }
 
-    render(tripEventComponent, this.#listContainer);
+    /** МОГУТ ВОЗНИКНУТЬ ОШИБКИ, потому что у меня не отрисованы элементы формы
+     * они отрисовываются, когда нажата стрелочка
+     * проверка, отрисован ли компонент формы в документе */
+    // if(this.#listContainer.contains(this.#editFormEventComponent.element)) {
+    if(this.#mode === Mode.EDITING){
+      replace(this.#editFormEventComponent, prevFormComponent);
+    }
+
+    /** удаляем временные переменные с компонентами формы и события */
+    remove(prevEventComponent);
+    remove(prevFormComponent);
   }
 
-  init() {
+  resetView() {
+    if(this.#mode !== Mode.DEFAULT) {
+      this.#replaceFromToEvent();
+    }
+  }
+
+  #replaceEventToFrom() {
+    replace(this.#editFormEventComponent, this.#tripEventComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceFromToEvent() {
+    // console.log(this.#tripEventComponent);
+    // console.log(this.#editFormEventComponent);
+    // console.log('ddd');
+    console.log('ddd', this.#tripEventComponent);
+    console.log('sss', this.#editFormEventComponent);
+    replace(this.#tripEventComponent, this.#editFormEventComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
+  }
+
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#replaceFromToEvent();
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
+  };
+
+  #handleArrowDownClick = () => {
+    this.#replaceEventToFrom();
+  };
+  // изменили значение в одном событии и передали на DataChange
+
+  #handleArrowUpClick = () => {
+    this.#replaceFromToEvent();
+  };
+
+  #handleFavouriteClick = () => {
+    console.log('click2');
+    this.#handleDataChange({...this.#tripEvent, isFavorite: !this.#tripEvent.isFavorite});
+  };
+
+  #handleFormSubmit = (tripEvent) => {
+    this.#handleDataChange(tripEvent);
+    this.#replaceFromToEvent();
+  };
+
+  destroy() {
+    remove(this.#editFormEventComponent);
+    remove(this.#tripEventComponent);
+  }
+
+  init(tripEvent) {
+    console.log(tripEvent);
+    this.#tripEvent = tripEvent;
+    this.#eventParameters.eventModel = tripEvent;
     this.#renderItemEvent();
   }
 }

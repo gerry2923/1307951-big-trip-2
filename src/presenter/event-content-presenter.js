@@ -2,13 +2,16 @@ import { render } from '../framework/render.js';
 import SortView from '../view/sort-view/sort-view.js';
 import EventListPresenter from './event-list-presenter.js';
 import EventItemPresenter from './event-item-presenter.js';
+// import { updateItem } from '../utils/common.js';
+import NoEventsView from '../view/no-events-view/no-events-view.js';
 
 
 export default class EventContentPresenter {
   #eventContainer = null;
   #tripEventsModel = null;
   #eventListPresenter = null;
-  #eventItemPresenters = [];
+  #eventItemPresenters = new Map();
+  #eventNoView = null;
   #tripEvents = null;
 
   constructor({eventsContainer, tripEventsModel}) {
@@ -23,42 +26,40 @@ export default class EventContentPresenter {
     this.#fillListWithEventElements();
   }
 
-  #prepareEventArguments(tripEventModel) {
+  #prepareEventArguments(tripEvent) {
     return {
-      dateFrom: tripEventModel.dateFrom,
-      dateTo: tripEventModel.dateTo,
-      basePrice: tripEventModel.basePrice,
-      type: tripEventModel.type,
-      title: this.#tripEventsModel.getTripTitle(tripEventModel),
-      offers: this.#tripEventsModel.getOffersByEvent(tripEventModel),
+      eventModel: tripEvent,
+      title: this.#tripEventsModel.getTripTitle(tripEvent),
+      offers: this.#tripEventsModel.getOffersByEvent(tripEvent),
     };
   }
 
-  #prepareFormArguments(tripEventModel) {
+  #prepareFormArguments(tripEvent) {
     return {
-      dateFrom: tripEventModel.dateFrom,
-      dateTo: tripEventModel.dateTo,
-      basePrice: tripEventModel.basePrice,
-      type: tripEventModel.type,
-      destination: this.#tripEventsModel.getDestinationPoint(tripEventModel.destination),
-      allOffers: this.#tripEventsModel.getAllOffersByType(tripEventModel.type),
-      appliedOffers: this.#tripEventsModel.getOffersByEvent(tripEventModel)
+      eventModel: tripEvent,
+      destination: this.#tripEventsModel.getDestinationPoint(tripEvent.destination),
+      allOffers: this.#tripEventsModel.getAllOffersByType(tripEvent.type),
+      appliedOffers: this.#tripEventsModel.getOffersByEvent(tripEvent)
     };
   }
 
   #fillListWithEventElements() {
-    this.#tripEvents.forEach((tripEventModel) => {
-      const eventParam = this.#prepareEventArguments(tripEventModel);
-      const formParam = this.#prepareFormArguments(tripEventModel);
+    this.#tripEvents.forEach((tripEvent) => {
+
+      const eventParam = this.#prepareEventArguments(tripEvent);
+      const formParam = this.#prepareFormArguments(tripEvent);
 
       const eventItemPresenter = new EventItemPresenter({
         listContainer: this.#eventListPresenter.element,
         eventParameters: eventParam,
-        formParameters: formParam });
+        formParameters: formParam,
+        onDataChange: this.#handleEventItemChange,
+        onModeChange: this.#handleModeChange });
 
-      eventItemPresenter.init();
-
-      this.#eventItemPresenters.push(eventItemPresenter);
+      /** тут надо инициализировать вместе с моделью init(tripEvent) */
+      eventItemPresenter.init(tripEvent);
+      /** сохраняем презентер каждой точки маршрута и её id */
+      this.#eventItemPresenters.set(tripEvent.id, eventItemPresenter);
     });
   }
 
@@ -75,10 +76,38 @@ export default class EventContentPresenter {
     }
   }
 
+  /**
+   * обновляем список, если были сделаны изменения в элементе списка
+   * НЕ МЕШАЛО БЫ СДЕЛАТЬ ЭТО В КОМПОНЕНТЕ СПИСКА eventListPresenter
+   */
+  #handleEventItemChange = (updateTripEvent) => {
+
+    this.#tripEventsModel.update(updateTripEvent);
+    this.#tripEvents = this.#tripEventsModel.getTripEvents();
+    // находим itemPresenter по id и обновляем  его
+    this.#eventItemPresenters.get(updateTripEvent.id).init(updateTripEvent);
+  };
+
+  #handleModeChange = () => {
+    this.#eventItemPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #renderNoTasks() {
+
+    render(new NoEventsView(), this.#eventContainer);
+  }
+
   init() {
-    this.#tripEvents = [...this.#tripEventsModel.getTripEvents()];
-    this.#setEventListElement();
-    this.#setSortFormElement();
+    // this.#tripEvents = this.#tripEventsModel.getTripEvents();
+    this.#tripEvents = [];
+
+    if (this.#tripEvents.length < 1) {
+      this.#renderNoTasks();
+    } else {
+      this.#setEventListElement();
+      this.#setSortFormElement();
+
+    }
   }
 
 }
