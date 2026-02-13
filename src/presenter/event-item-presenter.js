@@ -37,7 +37,6 @@ export default class EventItemPresenter {
       eventParam: this.#eventParameters,
       onArrowDownClick: this.#handleArrowDownClick,
       onFavoriteClick: this.#handleFavouriteClick,
-      // onEscKeyClick: this.#escKeyDownHandler,
     });
 
     this.#editFormEventComponent = new EditFormView({
@@ -45,8 +44,6 @@ export default class EventItemPresenter {
       formParam: this.#formParameters,
       onFormSubmit: this.#handleFormSubmit,
       onEditClick: this.#handleArrowUpClick,
-      // onEditClick: this.#replaceFromToEvent,
-      // onEscKeyClick: this.#escKeyDownHandler,
     });
 
     /** Если компонент не создан и он новый, то отрисовываем только что созданный компонент*/
@@ -65,7 +62,7 @@ export default class EventItemPresenter {
       replace(this.#tripEventComponent, prevEventComponent);
     }
 
-    /** МОГУТ ВОЗНИКНУТЬ ОШИБКИ, потому что у меня не отрисованы элементы формы
+    /* МОГУТ ВОЗНИКНУТЬ ОШИБКИ, потому что у меня не отрисованы элементы формы
      * они отрисовываются, когда нажата стрелочка
      * проверка, отрисован ли компонент формы в документе */
     // if(this.#listContainer.contains(this.#editFormEventComponent.element)) {
@@ -92,11 +89,7 @@ export default class EventItemPresenter {
   }
 
   #replaceFromToEvent() {
-    // console.log(this.#tripEventComponent);
-    // console.log(this.#editFormEventComponent);
-    // console.log('ddd');
-    console.log('ddd', this.#tripEventComponent);
-    console.log('sss', this.#editFormEventComponent);
+
     replace(this.#tripEventComponent, this.#editFormEventComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
@@ -121,7 +114,6 @@ export default class EventItemPresenter {
   };
 
   #handleFavouriteClick = () => {
-    console.log('click2');
     this.#handleDataChange({...this.#tripEvent, isFavorite: !this.#tripEvent.isFavorite});
   };
 
@@ -136,7 +128,6 @@ export default class EventItemPresenter {
   }
 
   init(tripEvent) {
-    console.log(tripEvent);
     this.#tripEvent = tripEvent;
     this.#eventParameters.eventModel = tripEvent;
     this.#renderItemEvent();
