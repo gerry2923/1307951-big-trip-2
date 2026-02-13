@@ -13,3 +13,10 @@ export const FilterType = {
   PRESENT: 'present',
   PAST: 'past',
 };
+
+
+export const SortType = {
+  DAY: 'default',
+  PRICE: 'price',
+  TIME: 'time',
+};

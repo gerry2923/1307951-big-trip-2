@@ -1,5 +1,12 @@
 import dayjs from 'dayjs';
+const utc = require('dayjs/plugin/utc');
+// import utc from 'dayjs/plugin/utc' // ES 2015
+const timezone = require('dayjs/plugin/timezone'); // dependent on utc plugin
+// import timezone from 'dayjs/plugin/timezone' // ES 2015
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Europe/Moscow');
 // тут нужно бы проверить строку dueDate на число символов, чтобы формат соотвествовал.!
 
 /**
@@ -8,7 +15,8 @@ import dayjs from 'dayjs';
  * @returns {string} возвращает строку в формате @dateFormat
  */
 function convertDateFromat(dueDate, dateFormat) {
-  return dueDate ? dayjs(dueDate).format(dateFormat) : '';
+
+  return dueDate ? dayjs.tz(dueDate, 'Europe/Moscow').format(dateFormat) : '';
 }
 
 /**
@@ -25,6 +33,7 @@ function shortenDateString(dueDate, dueDateLength = 16) {
  * @returns {string} минуты и часы
  */
 function dateDifferenceHoursMinutes(date1, date2) {
+
   const minutesInHour = 60;
   const hoursInDay = 24;
   // 2019-07-20T16:45:30.234Z
@@ -101,5 +110,62 @@ function isEventDateInFuture(dueDate) {
   return dueDate && dayjs().isBefore(dueDate, 'D');
 }
 
+// function getWeightForNullDate(dateA, dateB) {
+//   if (dateA === null && dateB === null) {
+//     return 0;
+//   }
 
-export {isEventDateExpired, isEventDateInPresent, isEventDateInFuture, convertDateFromat, shortenDateString, dateDifferenceHoursMinutes };
+//   if(dateA === null) {
+//     return 1;
+//   }
+
+//   if (dateB === null) {
+//     return -1;
+//   }
+
+//   return null;
+// }
+
+// function sortTime(tripEventA, tripEventB) {
+//   const weight = getWeightForNullDate(tripEventA.dateFrom, tripEventB.dateFrom);
+
+//   return weight ?? dayjs(tripEventB.dateFrom).diff(dayjs(tripEventA.dateFrom));
+// }
+/** подходит для сравнения числовых данных */
+function compareFn(dataA, dataB) {
+  if(dataA < dataB) {
+    return 1;
+  }
+
+  if(dataA > dataB) {
+    return -1;
+  }
+
+  return 0;
+}
+
+/**Сортировка по длительности поездки */
+function sortTime(tripEventA, tripEventB) {
+  const diffA = dayjs(tripEventA.dateTo).diff(dayjs(tripEventA.dateFrom), 'minute');
+  const diffB = dayjs(tripEventB.dateTo).diff(dayjs(tripEventB.dateFrom), 'minute');
+  return compareFn(diffA, diffB);
+}
+
+function sortPrice(tripEventA, tripEventB) {
+  return compareFn(tripEventA.basePrice, tripEventB.basePrice);
+}
+
+function sortDate(tripEventA, tripEventB) {
+  const dif = dayjs(tripEventA.dateFrom).diff(dayjs(tripEventB.dateFrom), 'minute');
+  if(dif < 0) {
+    return 1;
+  }
+
+  if (dif > 0) {
+    return -1;
+  }
+
+  return 0;
+}
+
+export {sortDate, sortPrice, sortTime, isEventDateExpired, isEventDateInPresent, isEventDateInFuture, convertDateFromat, shortenDateString, dateDifferenceHoursMinutes };

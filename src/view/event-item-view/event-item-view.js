@@ -8,17 +8,13 @@ export default class EventItemView extends AbstractView{
   #handleOnArrowDownClick = null;
   #handleOnFavoriteClick = null;
   #handleOnEscKeyClick = null;
-  // #tripEvent = null;
 
 
   constructor({eventParam, onArrowDownClick, onFavoriteClick/**,onEscKeyClick */}) {
     super();
-    // this.#tripEvent = tripEvent;
     this.#eventParam = eventParam;
-
     this.#handleOnArrowDownClick = onArrowDownClick;
     this.#handleOnFavoriteClick = onFavoriteClick;
-    // this.#handleOnEscKeyClick = onEscKeyClick;
     this.#initEventListeners();
   }
 
@@ -38,20 +34,13 @@ export default class EventItemView extends AbstractView{
 
   #onFavouriteClick = (evt) => {
     evt.preventDefault();
-    console.log('click1');
     this.#handleOnFavoriteClick();
   };
-
-  // #onEscKeyPress = (evt) => {
-  //   this.#handleOnEscKeyClick(evt);
-  // };
-  /** При нажании на кнопку Favourite  */
 
   #initEventListeners() {
 
     this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onHandleArrowClick);
     this.element.querySelector('.event__favorite-btn').addEventListener('pointerdown', this.#onFavouriteClick);
-    // document.addEventListener('keydown', this.#onEscKeyPress);
   }
 
 }

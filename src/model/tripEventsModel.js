@@ -10,7 +10,6 @@ export default class TripEventsModel {
   #tripEvents = null;
   constructor() {
     this.#tripEvents = getRundomTripEventArray(NUMBER_OF_TRIP_EVENTS);
-    console.log(this.#tripEvents);
     // this.#tripEvents = Array.from({length: NUMBER_OF_TRIP_EVENTS}, getRundomTripEvent);
   }
 

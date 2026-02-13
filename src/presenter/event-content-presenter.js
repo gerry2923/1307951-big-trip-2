@@ -1,27 +1,29 @@
 import { render } from '../framework/render.js';
-import SortView from '../view/sort-view/sort-view.js';
+// import SortView from '../view/sort-view/sort-view.js';
 import EventListPresenter from './event-list-presenter.js';
 import EventItemPresenter from './event-item-presenter.js';
-// import { updateItem } from '../utils/common.js';
+import { updateItem } from '../utils/common.js';
 import NoEventsView from '../view/no-events-view/no-events-view.js';
+import EventSortPresenter from './event-sort-presenter.js';
+import { sortDate } from '../utils/event.js';
 
 
 export default class EventContentPresenter {
-  #eventContainer = null;
+  #eventsContainer = null;
   #tripEventsModel = null;
   #eventListPresenter = null;
   #eventItemPresenters = new Map();
   #eventNoView = null;
   #tripEvents = null;
+  #sortPresenter = null;
 
   constructor({eventsContainer, tripEventsModel}) {
-    this.#eventContainer = eventsContainer;
+    this.#eventsContainer = eventsContainer;
     this.#tripEventsModel = tripEventsModel;
-
   }
 
   #setEventListElement() {
-    this.#eventListPresenter = new EventListPresenter({listContainer: this.#eventContainer});
+    this.#eventListPresenter = new EventListPresenter({listContainer: this.#eventsContainer});
     this.#eventListPresenter.init();
     this.#fillListWithEventElements();
   }
@@ -63,17 +65,29 @@ export default class EventContentPresenter {
     });
   }
 
+  // очистка коллекции презентеров
+  #clearEventTripsList() {
+
+    this.#eventItemPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventItemPresenters.clear();
+  }
+
+  // замена массива с данными на отсортированный
+  #updateTripEvents = (newTripEventsList) => {
+    this.#tripEvents = newTripEventsList;
+    this.#clearEventTripsList();
+    this.#fillListWithEventElements();
+  };
+
+  /*TO-DO: ЧТОТО СЮДА ЕЩЕ НАДО ПЕРЕДАТЬ */
+
   #setSortFormElement() {
-    this.sortForm = new SortView();
-
-    if (this.#eventContainer.childElementCount === 1) {
-      render(this.sortForm, this.#eventContainer);
-      // this.#eventContainer.appendChild(this.sortForm);
-
-    } else if (this.#eventContainer.childElementCount > 1) {
-
-      this.#eventContainer.insertBefore(this.sortForm.element, this.#eventContainer.firstElementChild.nextElementSibling);
-    }
+    this.#sortPresenter = new EventSortPresenter({
+      sortContainer: this.#eventsContainer,
+      tasksList: this.#tripEvents,
+      renderSortedList: this.#updateTripEvents, // сделать стрелочную функцию
+    });
+    this.#sortPresenter.init();
   }
 
   /**
@@ -81,11 +95,16 @@ export default class EventContentPresenter {
    * НЕ МЕШАЛО БЫ СДЕЛАТЬ ЭТО В КОМПОНЕНТЕ СПИСКА eventListPresenter
    */
   #handleEventItemChange = (updateTripEvent) => {
-
+    // обновили модель
     this.#tripEventsModel.update(updateTripEvent);
+    // забрали обновленную модель в свойство/массив
     this.#tripEvents = this.#tripEventsModel.getTripEvents();
+    // если изменился какой-то элемент массива с точками путешествия, то его обновляем и во временном массиве у сортировки
+    // обновляем значения, но не последовательность
+    this.#sortPresenter.sourcedTrips = updateItem(this.#sortPresenter.sourcedTrips, updateTripEvent);
     // находим itemPresenter по id и обновляем  его
     this.#eventItemPresenters.get(updateTripEvent.id).init(updateTripEvent);
+
   };
 
   #handleModeChange = () => {
@@ -94,16 +113,19 @@ export default class EventContentPresenter {
 
   #renderNoTasks() {
 
-    render(new NoEventsView(), this.#eventContainer);
+    render(new NoEventsView(), this.#eventsContainer);
   }
 
   init() {
-    // this.#tripEvents = this.#tripEventsModel.getTripEvents();
-    this.#tripEvents = [];
+    this.#tripEvents = this.#tripEventsModel.getTripEvents();
+    // this.#tripEvents = [];
 
     if (this.#tripEvents.length < 1) {
       this.#renderNoTasks();
     } else {
+
+      this.#tripEvents.sort(sortDate);
+
       this.#setEventListElement();
       this.#setSortFormElement();
 
