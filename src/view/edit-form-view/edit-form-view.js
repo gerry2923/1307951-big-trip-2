@@ -1,9 +1,11 @@
 import { createEditFormTemplate } from '../edit-form-view/edit-form-template.js';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
+import { Russian } from "flatpickr/dist/l10n/ru.js"
 
 // import 'flatpickr/dist/flatpickr.min.css'
 import '../../../node_modules/flatpickr/dist/flatpickr.min.css';
+
 
 export default class EditFormView extends AbstractStatefulView {
   #datepickerFromDate = null;
@@ -23,6 +25,9 @@ export default class EditFormView extends AbstractStatefulView {
   #allOffers = null;
   #appliedOffers = null;
   #type = null;
+
+  // проверка доступа к кнопке отправки данных
+  #isSubmitDisabled = true;
 
 
   constructor({ destinations, tripEvent, /*formParam, */onFormSubmit, onEditClick, onTypeChange, getDestinationById , getDestinationByName, getAllOffers, getTripEventOffers/** onEscKeyClick*/ }) {
@@ -56,6 +61,8 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.querySelector('.event__rollup-btn').addEventListener('pointerdown', this.#onEditFormClick);
     this.element.querySelector('#event-type-toggle-1').addEventListener('click', this.#onChangeTripEventType);
     this.element.querySelector('#event-destination-1').addEventListener('change', this.#onDataListChange);
+
+    this.#setDatepicker();
   }
 
   get template() {
@@ -118,10 +125,16 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #setDatepicker() {
+
     this.#datepickerFromDate = flatpickr(
       this.element.querySelector('#event-start-time-1'), {
-        dateFormat: 'j F',
+        // "locale": "ru",
+        "locale": Russian,
+        enableTime: true,
+        dateFormat: 'd/m/y h:i',
         defaultDate: this._state.dateFrom,
+        // altInput: true,
+        // altFormat: 'F j, Y',
         onChange: this.#dateFromChangeHandler,
       }
     );
@@ -133,10 +146,22 @@ export default class EditFormView extends AbstractStatefulView {
         onChange: this.#dateToChangeHandler,
       }
     );
+
   }
 /** TODO  */
     removeElement() {
-    this.#element = null;
+      super.removeElement();
+
+      if (this.#datepickerFromDate) {
+        this.#datepickerFromDate.destroy();
+        this.#datepickerFromDate = null;
+      }
+
+      if (this.#datepickerToDate) {
+        this.#datepickerToDate.destroy();
+        this.#datepickerToDate = null;
+      }
+
   }
 
   /*---------------- FLATPICKER end ------------------------------ */
