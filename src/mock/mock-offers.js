@@ -219,3 +219,6 @@ export const offers = [
     ]
   }
 ];
+
+
+export {offers}

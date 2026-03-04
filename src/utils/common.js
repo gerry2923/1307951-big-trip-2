@@ -13,9 +13,9 @@ function getRandomArrayElement(items) {
  * @param {*} update объект, на который нужно заменить элемент массива
  * @returns обновленный масси элементов
  */
-function updateItem(items, update) {
-  return items.map((item) => item.id === update.id ? update : item);
-}
+// function updateItem(items, update) {
+//   return items.map((item) => item.id === update.id ? update : item);
+// }
 // локальное времяа
 function setTimeZoneOffset(stringDate) {
   let date = new Date(stringDate);

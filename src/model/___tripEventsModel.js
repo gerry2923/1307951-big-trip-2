@@ -4,11 +4,14 @@ import { offers } from '../mock/mockOffers.js';
 import { NUMBER_OF_TRIP_EVENTS } from '../const.js';
 import { updateItem } from '../utils/common.js';
 
+import Observable from '../framework/observable.js'
 
-export default class TripEventsModel {
+
+export default class TripEventsModel extends Observable{
 
   #tripEvents = null;
   constructor() {
+    super();
     this.#tripEvents = getRundomTripEventArray(NUMBER_OF_TRIP_EVENTS);
     // this.#tripEvents = Array.from({length: NUMBER_OF_TRIP_EVENTS}, getRundomTripEvent);
   }
@@ -16,8 +19,47 @@ export default class TripEventsModel {
   /**
  * @returns {Array} массив из объектов, каждый элемент которого содержит данные о событии поездки
  */
-  getTripEvents() {
+  get tripEvents() {
     return this.#tripEvents;
+  }
+
+  updateTripEvent(updateType, update) {
+    const index = this.#tripEvents.findIndex((task) => task.id === update.id);
+
+    if(index === -1) {
+      throw new Error('Can\'t update unexisting trip event');
+    }
+
+    this.#tripEvents = [
+      ... this.#tripEvents.slice(0, index),
+      update,
+      ...this.#tripEvents.slice(index + 1),
+    ];
+    this._notify(updateType, update);
+  }
+
+  addTripEvent(updateType, update) {
+    this.#tripEvents = [
+      update,
+      ...this.#tripEvents,
+    ];
+
+    this._notify(updateType, update);
+  }
+
+  deleteTripEvent(updateType, update) {
+    const index = this.#tripEvents.findIndex((task) => task.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting task');
+    }
+
+    this.#tripEvents = [
+      ...this.#tripEvents.slic(0, index),
+      ...this.#tripEvents.slice(index + 1),
+    ];
+
+    this._notify(updateType);
   }
 
   getTripEventsLength() {
