@@ -13,16 +13,25 @@ export default class PointsModel extends Observable {
   // все города точек и все типы транспорта в виде объекта
   #selectElementsOptions = null;
 
+  #pointApiService = null;
 
-  #extractSelectContentData = () => ({
+  #extractSelectElementsContentData = () => ({
     typesOptions: offers.map((offer) => offer.type),
     destinationOptions: destinations.map((destination) => destination.name),
   });
 
-  constructor() {
+  constructor({pointApiService}) {
     super();
-    this.#points = getRandomPoints(POINTS_NUMBER);
-    this.#selectElementsOptions = this.#extractSelectContentData();
+    // this.#points = getRandomPoints(POINTS_NUMBER);
+    // выбирает значения для статичных элементов выбора на странце
+    // Для этого нужно получить данные по предложениям и точкам  назначения
+    // this.#selectElementsOptions = this.#extractSelectElementsContentData();
+
+    this.#pointApiService = pointApiService;
+
+    this.#pointApiService.points.then((points) => {
+      console.log(points);
+    });
   }
 
   get points() {
