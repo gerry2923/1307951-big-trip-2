@@ -1,23 +1,32 @@
-export const NUMBER_OF_TRIP_EVENTS = 3;
-export const MIN_TRIP_TIME = 590000; // минимальное время путешествия - 10 минут; Значения в константе в миллисекундах
+export const MONTH = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
-export const DATE_FORMAT = {
-  'YYYY-MM-DD':'YYYY-MM-DD',
-  'MMM DD':'MMM DD',
-  'HH:mm':'HH:mm',
-  'DD/MM/YY HH:mm':'DD/MM/YY HH:mm',
+export const MESSAGES = {
+  addNew: 'Click New Event to create your first point',
+  loading: 'Loading...',
+  loadingError: 'Failed to load latest route information',
 };
 
-export const FilterType = {
+export const FilterTypes = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
 };
 
-
-export const SortType = {
-  DAY: 'default',
+export const SortTypes = {
+  DAY: 'day',
   PRICE: 'price',
-  TIME: 'time',
+  TIME: 'duration',
+};
+
+export const UserAction = {
+  UPDATE_POINT : 'UPDATE_POINT',
+  ADD_POINT : 'ADD_POINT',
+  DELETE_POINT : 'DELETE_POINT',
+};
+
+export const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
 };

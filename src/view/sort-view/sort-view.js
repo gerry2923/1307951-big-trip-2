@@ -1,36 +1,31 @@
-// import {createElement} from '../../framework/render.js';
-import { createSortTemplate } from './sort-template.js';
-import AbstractView from '../../framework/view/abstract-view.js';
+import { createSortTemplate } from './sort-template';
+import AbstractView from '../../framework/view/abstract-view';
 
 export default class SortView extends AbstractView {
   #handleSortTypeChange = null;
-  // #isChecked = false;
-  constructor({onSortTypeChange}) {
-    super();
-    this.#handleSortTypeChange = onSortTypeChange;
-    this.element.addEventListener('pointerdown', this.#sortTypeChangeHandler);
-  }
+  #currentSortType = null;
 
-  get template() {
-    return createSortTemplate();
-  }
-
-  #changeActiveMenuOptionState(activeItemId) {
-    const sortForm = document.querySelector('.trip-events__trip-sort');
-    const inputItemsList = Array.from(sortForm.querySelectorAll('.trip-sort__input'));
-    inputItemsList.forEach((item) => item.id === activeItemId ? item.setAttribute('checked', true) : item.removeAttribute('checked'));
-  }
-
-  #sortTypeChangeHandler = (evt) => {
-
-    if(evt.target.closest('trip-sort__item')) {
-      if (!(evt.target.previousElementSibling.tagName === 'INPUT' && evt.target.previousElementSibling.classList.contains('trip-sort__input'))) {
-        return;
-      }
+  #sortTypeChange = (evt) => {
+    // делаем проверку на что мы кликнули. Должен быть тэг A
+    if(evt.target.tagName !== 'LABEL' || !evt.target.hasAttribute('data-sort-type')) {
+      return;
     }
 
     evt.preventDefault();
-    this.#handleSortTypeChange(evt.target.previousElementSibling.dataset.sortType);
-    this.#changeActiveMenuOptionState(evt.target.previousElementSibling.id);
+    // нужно передать тип сортировки
+    this.#handleSortTypeChange(evt.target.dataset.sortType);
   };
+
+  constructor({ currentSortType, onSortTypeChange }) {
+    super();
+    this.#currentSortType = currentSortType;
+    this.#handleSortTypeChange = onSortTypeChange;
+    // поставили обработчик на весь элемент. Для того, чтобы определять, куда был сделан клик, поставили каждому элементу data-атрибут
+    this.element.addEventListener('click', this.#sortTypeChange);
+  }
+
+  get template() {
+    return createSortTemplate(this.#currentSortType);
+  }
+
 }

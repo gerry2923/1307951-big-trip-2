@@ -1,18 +1,40 @@
-import MainPresenter from '../src/presenter/main-presenter.js';
-import TripEventsModel from './model/tripEventsModel.js';
+import PointsModel from './model/points-model';
+import FilterModel from './model/filter-model';
 
-// const LIST_LENGTH = 3; // длина списка будет передаваться с тем количеством событий, которые создадутся в tripEventModel (это значение константы)
-// сюда вставляем info и filter
-const tripMainHeaderContainerElement = document.querySelector('.trip-controls__filters');
-// сюда вставляем сортировку, форму создания точки, список точек
-const tripEventsContainerElement = document.querySelector('.trip-events');
-// создаем экземпляр модели событий поездки
-const tripEventsModel = new TripEventsModel();
+import PagePresenter from './presenter/page-presenter';
+import EmptyPagePresenter from './presenter/_empty-page-presenter';
 
-const mainPresenter = new MainPresenter({
-  headerContainer: tripMainHeaderContainerElement,
-  eventsContainer: tripEventsContainerElement,
-  tripEventsModel
+import { offers } from './moks/mock-offers';
+import { destinationPoints } from './moks/mock-destination';
+
+import { clearElement } from './utils/common';
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
+
+const siteBodyElement = document.querySelector('.page-body');
+const siteHeaderElement = siteBodyElement.querySelector('.trip-main');
+const siteMainElement = siteBodyElement.querySelector('.trip-events');
+const filterModel = new FilterModel();
+const sitePointsModel = new PointsModel(); // добавляет данные с сервера
+const siteOffers = offers;
+const siteDestination = destinationPoints;
+
+clearElement(siteHeaderElement);
+
+/**  добавить загрузку  сервера
+ * данные не загрузились
+ * загрузка все еще идет
+*/
+
+const contentPresenter = new PagePresenter({
+  headerContainer: siteHeaderElement,
+  mainContainer: siteMainElement,
+  pointsModel: sitePointsModel,
+  filtersModel: filterModel,
+  offers: siteOffers,
+  destinations: siteDestination
 });
 
-mainPresenter.init();
+contentPresenter.init();

@@ -1,7 +1,6 @@
-const path = require('path')
-const CopyPlugin = require('copy-webpack-plugin')
-const HtmlPlugin = require('html-webpack-plugin')
-
+const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
+const HtmlPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/main.js',
@@ -18,16 +17,18 @@ module.exports = {
     new CopyPlugin({
       patterns: [{
         from: 'public',
-      globOptions: {
-        ignore: ['**/index.html'],
-      }}],
+        globOptions: {
+          ignore: ['**/index.html'],
+        }
+      }],
     }),
+
   ],
   module: {
     rules: [
       {
         test: /\.js$/,
-        exclude: /(node_modules)/,
+        exclude: /(node_modules)/ ,
         use: {
           loader: 'babel-loader',
           options: {
@@ -37,8 +38,8 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
-      },
-    ]
+        use: ['style-loader', 'css-loader']
+      }
+    ],
   }
 };
