@@ -73,7 +73,9 @@ function remove(component) {
     throw new Error('Can remove only components');
   }
 
+  // удаляет элемент из DOM
   component.element.remove();
+  // обнуляет ссылку на этот элемент
   component.removeElement();
 }
 

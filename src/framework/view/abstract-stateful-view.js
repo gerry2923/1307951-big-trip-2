@@ -33,20 +33,18 @@ export default class AbstractStatefulView extends AbstractView {
    * @param {Object} update Объект с обновлённой частью состояния
    */
   _setState(update) {
+    // создается глубокий клон объекта, в котором прописаны все поля как у нас в коде, а в update тот же объект, но с полями, которые изменились
     this._state = structuredClone({...this._state, ...update});
   }
 
   /** Метод для перерисовки элемента */
   #rerenderElement() {
-    // console.log('предыдущий элемент');
-    // console.log(this.element);
+    // this.element - это вызов геттера get element(). Он возвращает созданный шаблон элемента
+
     const prevElement = this.element;
     const parent = prevElement.parentElement;
     this.removeElement();
-
     const newElement = this.element;
-    // console.log('новый элемент');
-    // console.log(newElement);
     parent.replaceChild(newElement, prevElement);
 
     this._restoreHandlers();
