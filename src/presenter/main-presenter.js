@@ -2,6 +2,7 @@ import { render, remove } from '../framework/render';
 import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
 import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
 import { filter } from '../utils/filter';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
@@ -9,10 +10,9 @@ import PointListItemView from '../view/point-list-item-view/point-list-item-view
 import PointPresenter from './point-presenter';
 import NoPointView from '../view/no-point-view/no-point-view';
 import LoadingView from '../view/loading-view/loading-view';
-import { nanoid } from 'nanoid';
 
 const BLANK_POINT = {
-  id: nanoid(),
+  id: 'new45point',
   basePrice: 0,
   dateFrom: '',
   dateTo: '',
@@ -20,6 +20,11 @@ const BLANK_POINT = {
   isFavorite: false,
   offers: [],
   type: 'flight'
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export default class MainPresenter {
@@ -47,15 +52,14 @@ export default class MainPresenter {
   #isLoading = true;
   #newPointEventHandler = null;
 
-  #printPPIds = () => {
-    console.log('-----------');
-    this.#pointPresenters.forEach((presenter) => console.log(presenter.presenterId));
-    console.log('---  ----  --');
-  };
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
+
 
   #removePresenter = (presenter) => {
     this.#pointPresenters.delete(presenter.presenterId);
-    this.#pointPresenters.forEach((presenter) => console.log(presenter.presenterId));
   };
 
   // если нажали на какую-нибудь кнопку при открытой форме редактирования
@@ -119,19 +123,40 @@ export default class MainPresenter {
   };
 
   // если что-то произошло в представлении
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    // this.#uiBlocker.block();
+
     switch (actionType) {
       /// методы update, add, delete еще не реализованы
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        this.#pointPresenters.get(update.id).setSaving();
+        try {
+          await this.#pointsModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#pointPresenters.get(update.id).setAborting();
+        }
         break;
+
       case UserAction.ADD_POINT:
-        this.#pointsModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointsModel.addPoint(updateType, update);
+        } catch(err) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
+
       case UserAction.DELETE_POINT:
-        this.#pointsModel.deletePoint(updateType, update);
+        this.#pointPresenters.get(update.id).setDeleting();
+        try {
+          await this.#pointsModel.deletePoint(updateType, update);
+        } catch(err) {
+          this.#pointPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    // this.#uiBlocker.unblock();
   };
 
 
