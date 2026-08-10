@@ -113,27 +113,20 @@ export const getSelectedOffersIds = (offers) => {
 export const isDateEquall = (dateA, dateB) => (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
 
 export const isFromDateEarlierToDate = (dateFrom, dateTo) => (dayjs(dateTo).valueOf() - dayjs(dateFrom).valueOf()) > 300000;
-/***** не надо */
-// export const getAllOffersByType = (point) => point.allOffers.find((offersByType) => offersByType.type === point.type);
 
-/**
- * @param {Array} - массив с объектами вида [ { type: '', offers: [...]}]
- * @returns {Array} - массив с предложениями для одного типа offers[]
- */
-/**
- * @param {Array}- массив с id предложений, которые выбраны
- * @returns {Array} - массис с объектами предложений, которые выбраны
+export const getTripDatePeriod = (date1, date2) => {
+  const dayFrom = dayjs(date1);
+  const dayTo = dayjs(date2);
 
-
-export const getSelectedOffersFromByType = (offersIds, offersByType) => {
-  const isValid = offersIds &&
-    Array.isArray(offersIds) &&
-    offersByType &&
-    Array.isArray(offersByType);
-
-  if (isValid) {
-    const ids = new Set(offersIds);
-    return offersByType.filter((offer) => ids.has(offer.id));
+  if(dayFrom.diff(dayTo, 'month') === 0) {
+    return {
+      dayStart: `${dayFrom.format('DD')}`,
+      dayFinish: `${dayTo.format('DD')} ${dayTo.format('MMM')}`,
+    };
   }
+
+  return {
+    dayStart: `${dayFrom.format('DD')} ${dayFrom.format('MMM')}`,
+    dayFinish: `${dayTo.format('DD')} ${dayTo.format('MMM')}`
+  };
 };
- */

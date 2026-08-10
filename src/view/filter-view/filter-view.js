@@ -1,5 +1,5 @@
 import AbstractView from '../../framework/view/abstract-view';
-import { createFilterTemplate } from './filter-template';
+import { createFilterTemplate, createDisabledFilterTemplate } from './filter-template';
 
 
 /**
@@ -9,6 +9,7 @@ import { createFilterTemplate } from './filter-template';
 export default class FilterView extends AbstractView{
   #currentFilter = null;
   #handleFilterClick = null;
+  #isDisabled = null;
 
   #filterTypeChange = (evt) => {
     console.log('нажали на фильтры');
@@ -26,15 +27,19 @@ export default class FilterView extends AbstractView{
     }
   };
 
-  constructor({currentfitlerType, onfilterTypeChange}) {
+  constructor({currentfitlerType, onfilterTypeChange, isDisabled = false}) {
     super();
     this.#currentFilter = currentfitlerType;
     this.#handleFilterClick = onfilterTypeChange;
-
+    this.#isDisabled = isDisabled;
     this.element.addEventListener('click', this.#filterTypeChange);
   }
 
   get template() {
+    if(this.#isDisabled) {
+      return createDisabledFilterTemplate();
+    }
+
     return createFilterTemplate(this.#currentFilter);
   }
 

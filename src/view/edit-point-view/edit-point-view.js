@@ -83,7 +83,7 @@ export default class EditPointView extends AbstractStatefulView {
     const dateToStr = moment.utc(userDate).toISOString();
 
     if (this._state.dateFrom !== '' && !isFromDateEarlierToDate(this._state.dateFrom, dateToStr)) {
-      let newToDate = dayjs(this._state.dateFrom).add(5, 'minute')
+      let newToDate = dayjs(this._state.dateFrom).add(5, 'minute');
       console.log(newToDate.toString());
       newToDate = newToDate.toISOString();
 
@@ -125,7 +125,7 @@ export default class EditPointView extends AbstractStatefulView {
     if (cityInTheList === undefined) {
       evt.target.style.color = 'red';
     } else {
-        this.updateElement({
+      this.updateElement({
         destination: cityInTheList,
       });
       evt.target.style.color = 'black';
@@ -442,6 +442,7 @@ export default class EditPointView extends AbstractStatefulView {
   // вызывается когда форма сохраняется
 
   static parseStateToPoint(state) {
+    console.log(state);
     const point = { ...state };
 
     if (point.offers.length) {
@@ -453,11 +454,17 @@ export default class EditPointView extends AbstractStatefulView {
     // заменяет поля с объектами на id
     point.destination = point.destination.id;
 
+
+    if (state.isPointNew) {
+      console.log('Добавляем точку');
+      delete point.id;
+    }
+
     // удаляем лишние поля
     delete point.allOffers;
     delete point.allDestinations;
     delete point.typesOptions;
-    delete point.destinatiosOption;
+    delete point.destinationsOptions;
     delete point.isPointNew;
     console.log('получилась такая точка');
     console.log(point);

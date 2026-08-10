@@ -234,6 +234,7 @@ export default class PointPresenter {
       onFavouriteClick: this.#handleFavouriteClick,
     });
 
+
     // создаем компонент точки редактирования
     // добавляем все типы транспорта, города и опцию показа формы
     this.#editPointComponent = new EditPointView({
