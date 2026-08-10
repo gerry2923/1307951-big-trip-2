@@ -7,7 +7,7 @@ const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) => isNewP
                   <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>` : `
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving' : 'Save'}</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>
                   <button class="event__rollup-btn" type="button">`;
 
@@ -51,7 +51,7 @@ const createOffersTemplate = (point) => {
   allOffersByType.forEach((offer) => {
     if(idsSelectedOffers.has(offer.id)) {
       offersStr += `<div class="event__offer-selector">
-                         <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}" checked>
+                         <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}" ${point.isDisabled ? 'disabled' : ''} checked>
                          <label class="event__offer-label" for="${offer.id}">
                            <span class="event__offer-title">${offer.title}</span>
                            &plus;&euro;&nbsp;
@@ -60,7 +60,7 @@ const createOffersTemplate = (point) => {
                        </div>`;
     } else {
       offersStr += `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}">
+                        <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)} ${point.isDisabled ? 'disabled' : ''}">
                         <label class="event__offer-label" for="${offer.id}">
                           <span class="event__offer-title">${offer.title}</span>
                           &plus;&euro;&nbsp;
@@ -111,7 +111,7 @@ export const createEditPointTemplate = (point) => `
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${point.isDisabled ? 'disabled' : ''}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -127,7 +127,7 @@ export const createEditPointTemplate = (point) => `
                       ${point.type}
                     </label>
 
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : ''}>
 
                     <datalist id="destination-list-1">
                       ${createDestinationListTemplate(point.destinationsOptions)}
@@ -136,11 +136,11 @@ export const createEditPointTemplate = (point) => `
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${point.dateFrom}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${point.dateFrom}" ${point.isDisabled ? 'disabled' : ''}>
                     &mdash;
 
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${point.dateTo}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${point.dateTo}" ${point.isDisabled ? 'disabled' : ''}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -148,7 +148,7 @@ export const createEditPointTemplate = (point) => `
                       <span class="visually-hidden">Price</span>
                      &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${point.basePrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${point.basePrice}" ${point.isDisabled ? 'disabled' : ''}>
                   </div>
                     ${createControlButtonTemplate(point.isPointNew, point.isSaving, point.isDeleting)}
 

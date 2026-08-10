@@ -135,7 +135,7 @@ export default class PointsModel extends Observable {
     delete adaptedPoint['date_to'];
     delete adaptedPoint['is_favorite'];
 
-    console.log(point);
+    // console.log(point);
     return adaptedPoint;
   }
 

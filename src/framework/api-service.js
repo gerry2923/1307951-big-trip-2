@@ -47,8 +47,6 @@ export default class ApiService {
    * @returns {Promise}
    */
   static parseResponse(response) {
-    console.log('parseResponse');
-    console.log(response);
     return response.json();
   }
 

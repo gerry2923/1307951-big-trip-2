@@ -320,7 +320,10 @@ export default class PointPresenter {
   }
 
   setSaving() {
+    console.log('inSaving');
+    console.log(this.#mode);
     if(this.#mode === Mode.EDITING) {
+      console.log('now...');
       this.#editPointComponent.updateElement({
         isDisabled: true,
         isSaving: true,
@@ -339,7 +342,7 @@ export default class PointPresenter {
 
   setAborting() {
     if(this.#mode === Mode.DEFAULT) {
-      this.#pointComponent.shake();
+      this.#editPointComponent.shake();
       return;
     }
 
