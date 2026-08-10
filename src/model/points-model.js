@@ -1,32 +1,51 @@
-import { getRandomPoints } from '../moks/mock-trip-event';
-import { destinationPoints as destinations } from '../moks/mock-destination';
-import { offers } from '../moks/mock-offers';
 import Observable from '../framework/observable';
+import { UpdateType } from '../const';
 
-const POINTS_NUMBER = 7;
+// const POINTS_NUMBER = 7;
 
 /** При извлечении данных с сервера, необходима получить типы и города назначения списком */
 
 export default class PointsModel extends Observable {
   // массив с точками
-  #points = null;
+  #points = [];
+  #offers = [];
+  #destinations = [];
+
   // все города точек и все типы транспорта в виде объекта
   #selectElementsOptions = null;
+  #pointApiService = null;
 
-
-  #extractSelectContentData = () => ({
-    typesOptions: offers.map((offer) => offer.type),
-    destinationOptions: destinations.map((destination) => destination.name),
+  #extractSelectElementsContentData = () => ({
+    typesOptions: this.#offers.map((offer) => offer.type),
+    destinationOptions: this.#destinations.map((destination) => destination.name),
   });
 
-  constructor() {
+  constructor({ pointApiService }) {
     super();
-    this.#points = getRandomPoints(POINTS_NUMBER);
-    this.#selectElementsOptions = this.#extractSelectContentData();
+    // this.#points = getRandomPoints(POINTS_NUMBER);
+    // выбирает значения для статичных элементов выбора на странце
+    // Для этого нужно получить данные по предложениям и точкам  назначения
+    // this.#selectElementsOptions =
+
+    this.#pointApiService = pointApiService;
+
+    // this.#pointApiService.points.then((points) => {
+    //   console.log(points);
+
+    //   console.log(points.map(this.#adaptToClient));
+    // });
   }
 
   get points() {
     return this.#points;
+  }
+
+  get offers() {
+    return this.#offers;
+  }
+
+  get destinations() {
+    return this.#destinations;
   }
 
   set points(newPoints) {
@@ -42,42 +61,111 @@ export default class PointsModel extends Observable {
    * @param {*} update - точка с измененными данными
    */
 
-  updatePoint(updateType, update) {
+  async updatePoint(updateType, update) {
     // найти задачу с нужным id
     const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
-      throw new Error ('Can\'t update unexisting point');
+      throw new Error('Can\'t update unexisting point');
     }
     // заменили точку, на update - та же точка, но с новой информацией
-    this.#points = [
-      ...this.#points.slice(0, index),
-      update, ...
-      this.#points.slice(index + 1),
-    ];
-    // вызвали все cb, для обновлелния по типу
-    this._notify(updateType, update);
-    console.log('что-то обновили');
+    try {
+      const response = await this.#pointApiService.updatePoint(update);
+      const updatedPoint = this.#adaptPointToClient(response);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        updatedPoint, ...
+        this.#points.slice(index + 1),
+      ];
+      // вызвали все cb, для обновлелния по типу
+      this._notify(updateType, updatedPoint);
+      console.log('что-то обновили');
+    } catch (err){
+      throw new Error('Can\'t update point');
+    }
   }
 
-  addPoint(updateType, update) {
+  async addPoint(updateType, update) {
 
-    this.#points = [update, ...this.#points];
-    this._notify(updateType, update);
+    try {
+      const response = await this.#pointApiService.addPoint(update);
+      const newPoint = this.#adaptPointToClient(response);
 
-    console.log('что-то добавили');
+      this.#points = [newPoint, ...this.#points];
+      this._notify(updateType, newPoint);
+
+    } catch (err){
+      throw new Error('Can\'t add point');
+    }
   }
 
-  deletePoint(updateType, update) {
+  async deletePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 
-    this.#points = [
-      ...this.#points.slice(0, index),
-      ...this.#points.slice(index + 1),
-    ];
+    if(index === -1) {
+      throw new Error('Can\'t delete unexisting point');
+    }
 
-    this._notify(updateType);
-    console.log('что-то удалили');
+    try {
+      await this.#pointApiService.deletePoint(update);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        ...this.#points.slice(index + 1),
+      ];
+
+      this._notify(updateType);
+
+    } catch (err) {
+      throw new Error('Can\'t delete point');
+    }
+  }
+
+  #adaptPointToClient(point) {
+    const adaptedPoint = {
+      ...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    console.log(point);
+    return adaptedPoint;
+  }
+
+
+  async init() {
+    try {
+
+      // если возникнет ошибка загрузки хотя бы одного из требуемых параметров,
+      // будет выведено окно с ошибкой
+
+      const [points, offers, destinations] = await Promise.all([
+        this.#pointApiService.points,
+        this.#pointApiService.offers,
+        this.#pointApiService.destinations,
+      ]);
+
+      this.#points = points.map(this.#adaptPointToClient);
+      this.#offers = offers;
+      this.#destinations = destinations;
+      this.#selectElementsOptions = this.#extractSelectElementsContentData();
+
+    } catch (err) {
+      console.error('Возникла ошибка загрузки данных');
+      this.#points = [];
+      this.#offers = [];
+      this.destination = [];
+      throw err;
+    }
+
+    this._notify(UpdateType.INIT);
   }
 
 }

@@ -53,6 +53,11 @@ export default class FilterPresenter {
     remove(prevFilterComponent);
   }
 
+
+  destroy() {
+    remove(this.#filterComponent);
+  }
+
   init() {
     this.#renderFilter();
   }

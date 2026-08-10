@@ -8,7 +8,19 @@ import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
 import PointPresenter from './point-presenter';
 import NoPointView from '../view/no-point-view/no-point-view';
+import LoadingView from '../view/loading-view/loading-view';
 import { nanoid } from 'nanoid';
+
+const BLANK_POINT = {
+  id: nanoid(),
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'flight'
+};
 
 export default class MainPresenter {
   #mainContainer = null;
@@ -18,6 +30,7 @@ export default class MainPresenter {
   #pointListComponent = null;
   #noPointComponent = null; // когда нечему отображаться, нет ни одной точки
   #sortComponent = null;
+  #loadingComponent = new LoadingView();
 
   #pointPresenters = new Map();
   #pointPresenter = null;
@@ -31,6 +44,7 @@ export default class MainPresenter {
   #currentSortType = SortTypes.DAY;
   #filterType = FilterTypes.EVERYTHING;
 
+  #isLoading = true;
   #newPointEventHandler = null;
 
   #printPPIds = () => {
@@ -50,7 +64,6 @@ export default class MainPresenter {
       if (presenter.isNewPoint) {
         presenter.destroy();
         this.#pointPresenters.delete(presenter.presenterId);
-        this.this.#printPPIds();
         this.#newPointEventHandler();
       }
       presenter.resetView();
@@ -77,22 +90,29 @@ export default class MainPresenter {
 
   // если что-то  произошло в моделе
   #handleModelPoint = (updateType, data) => {
-    console.log(`action type is ${updateType}`);
     switch (updateType) {
       case UpdateType.PATCH:
-        // перерисовываем одну отредактированную точку
         this.#pointPresenters.get(data.id).init(data);
         break;
+
       case UpdateType.MINOR:
-        console.log('очистить все точки и перерисовать заново все точки маршрута, сортировка оставется');
-        this.clearMainPage(false); // устновим занчениек resetSortType в false
+        this.clearMainPage(false);
         this.init();
-        // !!!!!!!!!!!!!!!!!!!!!!!!!! удалить printPPIds()!!!!!!!!!!!!!
-        this.#printPPIds();
         break;
+
       case UpdateType.MAJOR:
-        console.log('очистить все точки, сбросить сортировку');
         this.clearMainPage();
+        this.init();
+        break;
+
+      case UpdateType.INIT:
+        remove(this.#loadingComponent);
+        this.#isLoading = false;
+
+        this.#offers = this.#pointsModel.offers;
+        this.#destinations = this.#pointsModel.destinations;
+        this.#selectElementsData = this.#pointsModel.selectElementsOptions;
+
         this.init();
         break;
     }
@@ -123,17 +143,6 @@ export default class MainPresenter {
     this.#destinations = destinations;
     this.#newPointEventHandler = onNewPointChange;
 
-    this.#selectElementsData = this.#pointsModel.selectElementsOptions; // объект с типами и городами
-
-    // тут же создать NewPointPresenter, для СОЗДАНИЯ  НОВОЙ ТОЧКИ маршрута
-    // ее будем отрисовывать, когда добавим точку маршрута
-    // ЭТО ЗАРАНЕЕ СОЗДАВАТЬ НЕ БУДЕМ!!!!!!
-    // this.#addNewPointPresenter = new NewPointPresenter({
-    //   newPointContainer: this.#pointListComponent,
-    //   onDataChange: this.#handleViewAction,
-    //   // onDestroy: ,
-    // });
-
     // добавляем подписку на изменение модели. Если что-то изменится, будем вызывать метод handleModelPoint и пререрисовывать части или страницу целиком
 
     this.#pointsModel.addObserver(this.#handleModelPoint);
@@ -151,33 +160,33 @@ export default class MainPresenter {
 
     switch (this.#currentSortType) {
       case SortTypes.PRICE:
-        console.log('Price')
+        console.log('Price');
         return filteredPoints.sort(sortPriceDown);
       case SortTypes.TIME:
-        console.log('Time')
+        console.log('Time');
         return filteredPoints.sort(sortDurationDown);
       case SortTypes.DAY:
-        console.log('Day')
-        return filteredPoints.sort(sortClosestDayFirst);;
+        console.log('Day');
+        return filteredPoints.sort(sortClosestDayFirst);
     }
     // return filteredPoints;
   }
 
   // TODO !!!
   createPoint() {
-    this.#handleModeChange();
+
+    if(this.#pointPresenters.size) {
+      this.#handleModeChange();
+    }
+
+    if (this.points.length === 0) {
+      remove(this.#noPointComponent);
+      this.#pointListComponent = new PointListView();
+      render(this.#pointListComponent, this.#mainContainer);
+    }
 
     //  * 1. создать пустой шаблон данных
-    const BLANK_POINT = {
-      id: nanoid(),
-      basePrice: 0,
-      dateFrom: '',
-      dateTo: '',
-      destination: '',
-      isFavorite: false,
-      offers: [],
-      type: 'flight'
-    };
+
     //  * 2. создать презентер пустой точки new PointPresenter()
     //  *    в параметры добавить все для пустой точки
     // a) создали li - элемент и отрисовали его (при открытии формы, он уже должен быть)
@@ -202,7 +211,6 @@ export default class MainPresenter {
     // c) инициировали и отрисовали точку
     // this.#newPointPresenter.init({...BLANK_POINT, ...{id: nanoid()}});
     this.#newPointPresenter.init({ ...BLANK_POINT });
-
     this.#pointPresenters.set(BLANK_POINT.id, this.#newPointPresenter);
 
     console.log('создаем новую точку');
@@ -220,8 +228,11 @@ export default class MainPresenter {
 
   renderList(points) {
     // 1. создаем элемент ul для содержания элементов списка
-    this.#pointListComponent = new PointListView();
-    render(this.#pointListComponent, this.#mainContainer);
+    console.log(!this.#pointListComponent);
+    if (this.#pointListComponent === null || !!this.#pointListComponent.element) {
+      this.#pointListComponent = new PointListView();
+      render(this.#pointListComponent, this.#mainContainer);
+    }
 
     points.forEach((pointItem) => this.renderPoint(pointItem));
   }
@@ -267,6 +278,8 @@ export default class MainPresenter {
     // удалить презентер создания точки маршрута
     remove(this.#sortComponent);
     remove(this.#pointListComponent);
+    remove(this.#loadingComponent);
+
     // если был создан компонент для случая отстутствия точек маршрута, то его надо тоже удалить. У меня это newPagePresenter. В нем создается и шапка и основная часть.
 
     if (this.#noPointComponent) {
@@ -283,15 +296,20 @@ export default class MainPresenter {
     console.log('clear main page');
   }
 
+  #renderLoading() {
+    // TODO: добавить блокировку header
+    render(this.#loadingComponent, this.#mainContainer);
+  }
+
+
   init() {
-
-    // проверяем, есть ли точки в массиве в принципе, если есть, то рисуем, если нет, то отображаем пустую страницу с сообщением
+    console.log(this.#filterType);
+    if(this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
     const points = this.points;
-    // console.log(this.#filtersModel.filter);
-    // console.log(`точки ${points} end`);
-    const pointsLength = points.length;
-
-    if (pointsLength === 0) {
+    if (points.length === 0) {
       this.renderNoPoint();
       return;
     }
