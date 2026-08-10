@@ -443,7 +443,12 @@ export default class EditPointView extends AbstractStatefulView {
 
   static parseStateToPoint(state) {
     console.log(state);
-    const point = { ...state };
+
+    const point = { ...state,
+      isSaving: false,
+      isDeliting: false,
+      isDisabled: false,
+    };
 
     if (point.offers.length) {
       point.offers = point.offers.map((offer) => offer.id);
@@ -466,6 +471,10 @@ export default class EditPointView extends AbstractStatefulView {
     delete point.typesOptions;
     delete point.destinationsOptions;
     delete point.isPointNew;
+    delete point.isDeliting;
+    delete point.isSaving;
+    delete point.isDisabled;
+
     console.log('получилась такая точка');
     console.log(point);
 

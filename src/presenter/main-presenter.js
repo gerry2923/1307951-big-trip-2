@@ -2,6 +2,7 @@ import { render, remove } from '../framework/render';
 import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
 import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
 import { filter } from '../utils/filter';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
 
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
@@ -12,7 +13,7 @@ import LoadingView from '../view/loading-view/loading-view';
 import { nanoid } from 'nanoid';
 
 const BLANK_POINT = {
-  id: nanoid(),
+  id: 'new45point',
   basePrice: 0,
   dateFrom: '',
   dateTo: '',
@@ -20,6 +21,11 @@ const BLANK_POINT = {
   isFavorite: false,
   offers: [],
   type: 'flight'
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export default class MainPresenter {

@@ -319,6 +319,42 @@ export default class PointPresenter {
     // this.#mode = Mode.EDITING;
   }
 
+  setSaving() {
+    if(this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if(this.#mode === Mode.EDITING) {
+      this.#editPointComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if(this.#mode === Mode.DEFAULT) {
+      this.#pointComponent.shake();
+      return;
+    }
+
+    const resetFromState = () => {
+      this.#editPointComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editPointComponent.shake(resetFromState);
+  }
+
+
   init(point) {
     // проверяем наличие id. Если есть, то отрисовываем как нормальнгую точк, если нет - то как новую
     this.#pointData = point;

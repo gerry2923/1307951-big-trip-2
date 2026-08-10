@@ -3,14 +3,13 @@ import { getAllOffersByType, } from '../../utils/point';
 
 const getFirstTitleWord = (text) => text.trim().toLowerCase().split(/\s+/)[0];
 
-const createControlButtonTemplate = (isNewPoint) => {
-  return isNewPoint ? `
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) => isNewPoint ? `
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>` : `
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
-                  <button class="event__rollup-btn" type="button">`
-};
+
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving' : 'Save'}</button>
+                  <button class="event__reset-btn" type="reset">${isDeleting ? 'Deleting...' : 'Delete'}</button>
+                  <button class="event__rollup-btn" type="button">`;
 
 const createDestinationListTemplate = (destinations) => {
   // console.log(destinations);
@@ -104,9 +103,7 @@ const createDescriptionTemplate = (point) => point.destination.description ? `
           </section>
           ${createPictureListTemplate(point)}` : '';
 
-export const createEditPointTemplate = (point) => {
-
-  return `
+export const createEditPointTemplate = (point) => `
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
@@ -153,7 +150,7 @@ export const createEditPointTemplate = (point) => {
                     </label>
                     <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${point.basePrice}">
                   </div>
-                    ${createControlButtonTemplate(point.isPointNew)}
+                    ${createControlButtonTemplate(point.isPointNew, point.isSaving, point.isDeleting)}
 
                     <span class="visually-hidden">Open event</span>
                   </button>
@@ -167,4 +164,3 @@ export const createEditPointTemplate = (point) => {
                 </section>
               </form>
 `;
-};
