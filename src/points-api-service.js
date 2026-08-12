@@ -24,7 +24,6 @@ export default class PointApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
-  // посылаем на сервер данные изменненной точки
   async updatePoint(point) {
 
     const response = await this._load({
@@ -35,7 +34,6 @@ export default class PointApiService extends ApiService {
     });
 
     const parsedResponse = await ApiService.parseResponse(response);
-
     return parsedResponse;
   }
 
@@ -76,7 +74,6 @@ export default class PointApiService extends ApiService {
     delete adaptedPoint.dateTo;
     delete adaptedPoint.isFavorite;
 
-    console.log(adaptedPoint);
     return adaptedPoint;
   }
 

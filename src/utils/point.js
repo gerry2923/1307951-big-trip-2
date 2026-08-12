@@ -1,4 +1,7 @@
 import dayjs from 'dayjs';
+import { MONTH } from '../const';
+const HOUR = 3600000; // milliseconds
+const DAY = 86400000; // milliseconds
 
 /**
  *
@@ -9,25 +12,6 @@ import dayjs from 'dayjs';
 
 export const updateItem = (items, updatePoint) => items.map((item) => item.id === updatePoint.id ? updatePoint : item);
 
-// TODO: организовать сортировку
-
-// Функция помещает задачи без даты в конце списка,
-// возвращая нужный вес для колбэка sort
-// function getWeightForNullDate(dateA, dateB) {
-//   if (dateA === null && dateB === null) {
-//     return 0;
-//   }
-
-//   if (dateA === null) {
-//     return 1;
-//   }
-
-//   if (dateB === null) {
-//     return -1;
-//   }
-
-//   return null;
-// }
 
 function getWeightForNullDate(dateA, dateB) {
   if (dateA === '' && dateB === '') {
@@ -93,20 +77,7 @@ export const getSelectedOffers = (offers, offersIds, type = 'flight') => {
 };
 
 /**
- * @param {Array}- массис с объектами предложений, которые выбраны
- * @returns {Array} - массив с id предложений, которые выбраны
- */
-
-export const getSelectedOffersIds = (offers) => {
-  const isValid = offers && Array.isArray(offers);
-
-  if (isValid) {
-    return offers.map((offer) => offer.id);
-  }
-};
-
-/**
- * @param {*} dateA -
+ * @param {*} dateA
  * @param {*} dateB
  * @returns boolean
  */
@@ -129,4 +100,74 @@ export const getTripDatePeriod = (date1, date2) => {
     dayStart: `${dayFrom.format('DD')} ${dayFrom.format('MMM')}`,
     dayFinish: `${dayTo.format('DD')} ${dayTo.format('MMM')}`
   };
+};
+
+/**
+ * @param {*} element - DOM - элемент, внутреннее содержимое которого удаляется
+ */
+
+export const clearElement = (element) => {
+  if (element.textContent) {
+    element.textContent = '';
+  }
+};
+
+
+/**
+ *
+ * @param {String} dateFrom ISO string like 2026-02-05T22:55:56.845Z
+ * @param {String} dateTo ISO string 2026-02-06T11:22:13.375Z
+ * @return {String} custom date format 02D 15M 00M
+ */
+
+export const getDateDifference = (travelDateFrom, travelDateTo) => {
+
+  const dateFrom = Date.parse(travelDateFrom);
+  const dateTo = Date.parse(travelDateTo);
+
+  const delta = dateTo - dateFrom;
+
+  if(delta > 0) {
+    const date = new Date(delta);
+
+    if(delta < HOUR) {
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      return `${minutes}М`;
+
+    } else if (delta < DAY) {
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      return `${hours}H ${minutes}M`;
+
+    } else {
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const days = String(date.getUTCDate()).padStart(2, '0');
+      return `${days}D ${hours}H ${minutes}M`;
+    }
+  }
+};
+
+/**
+ * @param {String} travelDate ISO string like 2026-02-05T22:55:56.845Z
+ * @returns {String} time string '10:00' format
+ */
+
+export const getCustomTime = (travelDate) => {
+  const minutes = String((new Date(travelDate)).getUTCMinutes()).padStart(2, '0');
+  const hours = String((new Date(travelDate)).getUTCHours()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
+export const getMonthDay = (travelDate) => {
+  const date = new Date(travelDate);
+  return `${MONTH[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2, '0')}`;
+};
+
+export const changeToFirstCapitalLetter = (incomingString) => {
+  if (!incomingString) {
+    return incomingString;
+  }
+  return incomingString.charAt(0).toUpperCase() + incomingString.slice(1);
+
 };

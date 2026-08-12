@@ -1,18 +1,20 @@
-import { render, remove } from '../framework/render';
-import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
-import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
-import { filter } from '../utils/filter';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
-
 import SortView from '../view/sort-view/sort-view';
 import PointListView from '../view/point-list-view/point-list-view';
 import PointListItemView from '../view/point-list-item-view/point-list-item-view';
 import PointPresenter from './point-presenter';
 import NoPointView from '../view/no-point-view/no-point-view';
 import LoadingView from '../view/loading-view/loading-view';
+import ErrorView from '../view/error-view/error-view';
+
+import { render, remove } from '../framework/render';
+import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
+import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
+import { filter } from '../utils/filter';
+
 
 const BLANK_POINT = {
-  id: 'new45point',
+  id: 'blank',
   basePrice: 0,
   dateFrom: '',
   dateTo: '',
@@ -36,6 +38,7 @@ export default class MainPresenter {
   #noPointComponent = null; // когда нечему отображаться, нет ни одной точки
   #sortComponent = null;
   #loadingComponent = new LoadingView();
+  #errorComponent = new ErrorView();
 
   #pointPresenters = new Map();
   #pointPresenter = null;
@@ -60,39 +63,31 @@ export default class MainPresenter {
 
   #removePresenter = (presenter) => {
     this.#pointPresenters.delete(presenter.presenterId);
+
   };
 
-  // если нажали на какую-нибудь кнопку при открытой форме редактирования
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => {
       if (presenter.isNewPoint) {
         presenter.destroy();
         this.#pointPresenters.delete(presenter.presenterId);
         this.#newPointEventHandler();
+        return;
       }
       presenter.resetView();
     });
   };
 
   #handleSortTypeChange = (sortType) => {
-    // проверяем, не повторяется ли сортировка
-    console.log(sortType);
     if (this.#currentSortType === sortType) {
       return;
     }
 
     this.#currentSortType = sortType;
-
-    // очищаем список, но сохраняем тип сортировки
     this.clearMainPage(false);
-    // сортируем задачи
-
-    // рендерим список заново
     this.init();
-
   };
 
-  // если что-то  произошло в моделе
   #handleModelPoint = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
@@ -122,18 +117,19 @@ export default class MainPresenter {
     }
   };
 
-  // если что-то произошло в представлении
+
   #handleViewAction = async (actionType, updateType, update) => {
-    // this.#uiBlocker.block();
+    this.#uiBlocker.block();
 
     switch (actionType) {
-      /// методы update, add, delete еще не реализованы
+
       case UserAction.UPDATE_POINT:
         this.#pointPresenters.get(update.id).setSaving();
         try {
           await this.#pointsModel.updatePoint(updateType, update);
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
+          throw new Error();
         }
         break;
 
@@ -143,6 +139,7 @@ export default class MainPresenter {
           await this.#pointsModel.addPoint(updateType, update);
         } catch(err) {
           this.#newPointPresenter.setAborting();
+          throw new Error();
         }
         break;
 
@@ -156,7 +153,7 @@ export default class MainPresenter {
         break;
     }
 
-    // this.#uiBlocker.unblock();
+    this.#uiBlocker.unblock();
   };
 
 
@@ -168,57 +165,41 @@ export default class MainPresenter {
     this.#destinations = destinations;
     this.#newPointEventHandler = onNewPointChange;
 
-    // добавляем подписку на изменение модели. Если что-то изменится, будем вызывать метод handleModelPoint и пререрисовывать части или страницу целиком
-
     this.#pointsModel.addObserver(this.#handleModelPoint);
     this.#filtersModel.addObserver(this.#handleModelPoint);
-
-    console.log(`current sort type ${this.#currentSortType}`);
   }
 
+  // eslint-disable-next-line getter-return
   get points() {
     this.#filterType = this.#filtersModel.filter;
     const points = this.#pointsModel.points;
-
     const filteredPoints = filter[this.#filterType](points);
-    console.log(filteredPoints);
 
     switch (this.#currentSortType) {
       case SortTypes.PRICE:
-        console.log('Price');
         return filteredPoints.sort(sortPriceDown);
       case SortTypes.TIME:
-        console.log('Time');
         return filteredPoints.sort(sortDurationDown);
       case SortTypes.DAY:
-        console.log('Day');
         return filteredPoints.sort(sortClosestDayFirst);
     }
-    // return filteredPoints;
   }
 
-  // TODO !!!
   createPoint() {
-
     if(this.#pointPresenters.size) {
       this.#handleModeChange();
     }
 
     if (this.points.length === 0) {
       remove(this.#noPointComponent);
+
       this.#pointListComponent = new PointListView();
       render(this.#pointListComponent, this.#mainContainer);
     }
 
-    //  * 1. создать пустой шаблон данных
-
-    //  * 2. создать презентер пустой точки new PointPresenter()
-    //  *    в параметры добавить все для пустой точки
-    // a) создали li - элемент и отрисовали его (при открытии формы, он уже должен быть)
     const pointListItemComponent = new PointListItemView();
     render(pointListItemComponent, this.#pointListComponent.element, 'afterbegin');
 
-    // b) создали презентер (В презентере будет создано краткое описание точки и форма)
     this.#newPointPresenter = new PointPresenter({
       pointItemContainer: pointListItemComponent,
       offers: this.#offers,
@@ -232,13 +213,8 @@ export default class MainPresenter {
     });
 
     this.#newPointPresenter.isNewPoint = true;
-    // нужно передать id, чтобы в презентере был презентер с id
-    // c) инициировали и отрисовали точку
-    // this.#newPointPresenter.init({...BLANK_POINT, ...{id: nanoid()}});
     this.#newPointPresenter.init({ ...BLANK_POINT });
     this.#pointPresenters.set(BLANK_POINT.id, this.#newPointPresenter);
-
-    console.log('создаем новую точку');
   }
 
   renderSort() {
@@ -252,8 +228,6 @@ export default class MainPresenter {
   }
 
   renderList(points) {
-    // 1. создаем элемент ul для содержания элементов списка
-    console.log(!this.#pointListComponent);
     if (this.#pointListComponent === null || !!this.#pointListComponent.element) {
       this.#pointListComponent = new PointListView();
       render(this.#pointListComponent, this.#mainContainer);
@@ -263,12 +237,9 @@ export default class MainPresenter {
   }
 
   renderPoint(pointItem) {
-
-    // 3.1. создали элемент li
     const pointListItemComponent = new PointListItemView();
     render(pointListItemComponent, this.#pointListComponent.element);
 
-    // 3.2. создали презентер (В презентере будет создано краткое описание точки и форма)
     this.#pointPresenter = new PointPresenter({
       pointItemContainer: pointListItemComponent,
       offers: this.#offers,
@@ -280,10 +251,8 @@ export default class MainPresenter {
       onNewPointStateChange: this.#newPointEventHandler,
       removePresenter: this.#removePresenter,
     });
-    // 3.3. инициировали и отрисовали точку
-    this.#pointPresenter.init(pointItem);
 
-    // 3.4. сохранили точку в карте
+    this.#pointPresenter.init(pointItem);
     this.#pointPresenters.set(pointItem.id, this.#pointPresenter);
   }
 
@@ -292,47 +261,34 @@ export default class MainPresenter {
     render(this.#noPointComponent, this.#mainContainer);
   }
 
-  /** Основная задача удалить все презентеры, которые привязаны к старым данным */
   clearMainPage(resetSortType = true) {
-    console.log(`point presenter size = ${this.#pointPresenters.size}`);
-    // удалить презентеры для создания точки маршрута по данным и точки редактирования
+    this.#isLoading = false;
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
-    // удалить все презентеры из сета презентеров
     this.#pointPresenters.clear();
 
-    // удалить презентер создания точки маршрута
     remove(this.#sortComponent);
     remove(this.#pointListComponent);
     remove(this.#loadingComponent);
-
-    // если был создан компонент для случая отстутствия точек маршрута, то его надо тоже удалить. У меня это newPagePresenter. В нем создается и шапка и основная часть.
 
     if (this.#noPointComponent) {
       remove(this.#noPointComponent);
     }
 
-    // !!! TODO: настроить систему оповещания при изменении внутренностей, менять значения в шапке
-    // поставить тип сортировки в значение по умолчанию
     if (resetSortType) {
-      console.log('устанавливаем сортировку на дни');
       this.#currentSortType = SortTypes.DAY;
     }
-
-    console.log('clear main page');
   }
 
   #renderLoading() {
-    // TODO: добавить блокировку header
     render(this.#loadingComponent, this.#mainContainer);
   }
 
-
   init() {
-    console.log(this.#filterType);
     if(this.#isLoading) {
       this.#renderLoading();
       return;
     }
+
     const points = this.points;
     if (points.length === 0) {
       this.renderNoPoint();

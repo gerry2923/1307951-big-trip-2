@@ -8,7 +8,6 @@ const NoPointTextType = {
 };
 
 export const createEmptyPointTemplate = (filterType) => {
-  console.log(filterType);
   const message = NoPointTextType[filterType];
 
   return `

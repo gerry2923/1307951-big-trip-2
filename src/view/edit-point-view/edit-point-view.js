@@ -5,27 +5,9 @@ import flatpickr from 'flatpickr';
 import moment from 'moment-timezone';
 import dayjs from 'dayjs';
 import 'flatpickr/dist/flatpickr.min.css';
-/**
- * Этот класс можно использовать для добавления новой точки маршрута, тогда нужно по умолчанию добавить cosnt BLANK_POINT {} и использовать его в значении по умолчанию для точки в конструкторе, те. point = BLANK_POINT ====>> его добавлять будем при клике на кнопку '+New Event'
-*
-const BLANK_POINT = {
-  id: '',
-  basePrice: 0,
-  dateFrom: '',
-  dateTo: '',
-  destination: '',
-  isFavorite: false,
-  offers: [],
-  type: 'flight',
-  allOffers: [],
-  allDestinations: [],
-  typesOptions: [], // это поле должно быть заполнено из pointsModel
-  destinationsOptions: [], // это поле должно быть заполнено pointsModel
-};
-*/
+
 
 export default class EditPointView extends AbstractStatefulView {
-  // #point = null;
   #handleCloseFrom = null;
   #handleFormSubmit = null;
   #handleDeleteClick = null;
@@ -38,11 +20,14 @@ export default class EditPointView extends AbstractStatefulView {
   #handelNewFormSubmit = null;
   #handelAddNewButtonEvent = null;
 
-  #formSubmitNewPointHandler = (evt) => {
+  #formSubmitNewPointHandler = async (evt) => {
     evt.preventDefault();
-    console.log('save button pressed');
-    this.#handelNewFormSubmit(EditPointView.parseStateToPoint(this._state));
-    this.#handelAddNewButtonEvent();
+    try {
+
+      await this.#handelNewFormSubmit(EditPointView.parseStateToPoint(this._state));
+      this.#handelAddNewButtonEvent();
+    } catch(err) {}
+
   };
 
   #formDeleteHandler = (evt) => {
@@ -74,8 +59,7 @@ export default class EditPointView extends AbstractStatefulView {
     }
 
     this.updateElement({
-      // dateFrom: moment.utc(userDate).toISOString(),
-      dateFrom: dateFromStr
+      dateFrom: dateFromStr,
     });
   };
 
@@ -84,7 +68,6 @@ export default class EditPointView extends AbstractStatefulView {
 
     if (this._state.dateFrom !== '' && !isFromDateEarlierToDate(this._state.dateFrom, dateToStr)) {
       let newToDate = dayjs(this._state.dateFrom).add(5, 'minute');
-      console.log(newToDate.toString());
       newToDate = newToDate.toISOString();
 
       this.updateElement({
@@ -118,9 +101,8 @@ export default class EditPointView extends AbstractStatefulView {
     }
 
     inputValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1).toLowerCase();
-    console.log(inputValue);
 
-    const cityInTheList = this._state.allDestinations.find((destination) => destination.name === inputValue)
+    const cityInTheList = this._state.allDestinations.find((destination) => destination.name === inputValue);
 
     if (cityInTheList === undefined) {
       evt.target.style.color = 'red';
@@ -136,9 +118,8 @@ export default class EditPointView extends AbstractStatefulView {
 
   #changePriceHandler = (evt) => {
     evt.preventDefault();
-    let priceValue = Math.abs(parseInt(evt.target.value, 10)) || 0;
+    const priceValue = Math.abs(parseInt(evt.target.value, 10)) || 0;
     this.updateElement({
-      // basePrice: evt.target.value,
       basePrice: priceValue,
     });
   };
@@ -147,11 +128,8 @@ export default class EditPointView extends AbstractStatefulView {
     evt.preventDefault();
 
     const offerId = evt.target.id;
-
     const allTypeOffers = getAllOffersByType(this.#additionalOptions.allOffers, this._state.type);
-
     const offerToAdd = allTypeOffers.find((offer) => offer.id === offerId);
-
     const newOffers = this._state.offers;
     const index = newOffers.findIndex((offer) => offer.id === offerId);
 
@@ -187,9 +165,8 @@ export default class EditPointView extends AbstractStatefulView {
     onAddNewButtonClick }) {
 
     super();
-    // типы транспора, все города, все точки назначения, все предложения по типам
     this.#additionalOptions = additionalOptions;
-    this.#isPointNew = isPointNew
+    this.#isPointNew = isPointNew;
     this.#handleCloseFrom = onCloseFormClick;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleDeleteClick = onDeleteClick;
@@ -205,43 +182,30 @@ export default class EditPointView extends AbstractStatefulView {
     return createEditPointTemplate(this._state);
   }
 
-  // обязательный для выполнения метод перерисовки
   _restoreHandlers() {
-    // если точка создается
     if (this.#isPointNew) {
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelButtonHandler);
       this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitNewPointHandler);
 
     } else {
-      // нажатие на стрелку вверх аналогично нажатию на esc
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-      // нажатие на кнопку delete
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
-      // нажатие на кнопку save SUBMIT
       this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitHandler);
 
     }
 
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeHandler);
-
-    // this.element.querySelector('#event-destination-1').addEventListener('change', this.#changeDestinationHandler);
-    this.element.querySelector('#event-destination-1').addEventListener('input', this.#changeDestinationHandler)
-
+    this.element.querySelector('#event-destination-1').addEventListener('input', this.#changeDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
 
     const offerElement = this.element.querySelector('.event__section--offers');
     if (offerElement) {
       offerElement.addEventListener('change', this.#changeOfferHandler,);
     }
-
-    // this.element.querySelector('').addEventListener('',);
     this.#setDatepicker();
   }
 
-  // TODO: выполнить проверку правильности выбора даты (дата после не должна быть ранее даты до)
-
   #setDatepicker() {
-    // проверяет, установлена ли дата, если да, то ставим ее в input
 
     if (this._state.dateFrom && this._state.dateTo) {
 
@@ -263,9 +227,8 @@ export default class EditPointView extends AbstractStatefulView {
             return moment.utc(date).format('DD/MM/YY HH:mm');
           },
 
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -298,9 +261,8 @@ export default class EditPointView extends AbstractStatefulView {
             return moment.utc(date).format('DD/MM/YY HH:mm');
           },
 
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -312,7 +274,7 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateToChangeHandler,
         }
       );
 
@@ -326,8 +288,6 @@ export default class EditPointView extends AbstractStatefulView {
           time_24hr: true,
           utc: true,
           allowInput: false,
-          // defaultDate: this._state.dateFrom,//
-          // defaultDate: (new Date()).toISOString(),
 
           parseDate: function (dateStr) {
             return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
@@ -337,9 +297,8 @@ export default class EditPointView extends AbstractStatefulView {
             return moment.utc(date).format('DD/MM/YY HH:mm');
           },
 
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -351,7 +310,7 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateFromChangeHandler,
         }
       );
 
@@ -372,9 +331,8 @@ export default class EditPointView extends AbstractStatefulView {
             return moment.utc(date).format('DD/MM/YY HH:mm');
           },
 
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -386,11 +344,10 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateToChangeHandler,
         }
       );
     }
-    // return false;
   }
 
   removeElement() {
@@ -407,28 +364,25 @@ export default class EditPointView extends AbstractStatefulView {
     }
   }
 
-  /**
-   * @param {*} point сбрасываем объект точки, если нам не надо сохранять изменения
-   */
+
   reset(point) {
     this.updateElement(
       EditPointView.parsePointToState(point, this.#additionalOptions)
     );
   }
 
-  /*
-  * ??? Если точка пустая, то что???
-  */
 
   static parsePointToState(point, additionalOptions, isPointNew) {
-    // TODO|!!!!! универсальный метод по поиску всех примененных опций и поиску описания по id и заменить его везде
-    const appliedOptions = point.offers.length ? getSelectedOffers(additionalOptions.allOffers, point.offers, point.type) : [];
 
+    const appliedOptions = point.offers.length ? getSelectedOffers(additionalOptions.allOffers, point.offers, point.type) : [];
     const fullDescriptionDestination = point.destination !== '' ? additionalOptions.allDestinations.find((destination) => destination.id === point.destination) : '';
 
     const newPoint = {
       ...point,
       isPointNew: isPointNew, // используем геттер
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
       offers: appliedOptions,
       destination: fullDescriptionDestination,
       ...additionalOptions,
@@ -436,19 +390,10 @@ export default class EditPointView extends AbstractStatefulView {
 
     return newPoint;
   }
-  /**
- * тут эти поля надо удалить
- */
-  // вызывается когда форма сохраняется
 
   static parseStateToPoint(state) {
-    console.log(state);
 
-    const point = { ...state,
-      isSaving: false,
-      isDeliting: false,
-      isDisabled: false,
-    };
+    const point = { ...state};
 
     if (point.offers.length) {
       point.offers = point.offers.map((offer) => offer.id);
@@ -456,27 +401,21 @@ export default class EditPointView extends AbstractStatefulView {
       point.offers = [];
     }
 
-    // заменяет поля с объектами на id
     point.destination = point.destination.id;
 
 
     if (state.isPointNew) {
-      console.log('Добавляем точку');
       delete point.id;
     }
 
-    // удаляем лишние поля
     delete point.allOffers;
     delete point.allDestinations;
     delete point.typesOptions;
     delete point.destinationsOptions;
     delete point.isPointNew;
-    delete point.isDeliting;
+    delete point.isDeleting;
     delete point.isSaving;
     delete point.isDisabled;
-
-    console.log('получилась такая точка');
-    console.log(point);
 
     return point;
   }

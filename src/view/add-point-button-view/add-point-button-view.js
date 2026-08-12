@@ -4,24 +4,43 @@ import { createAddPointButtonTemplate } from './add-point-button-template';
 export default class AddPointButtonView extends AbstractView{
 
   #handleButtonClick = null;
+  #isDisabled = false;
 
   #buttonClickHandler = (evt) => {
-    console.log(evt.target);
     evt.preventDefault();
-    console.log(`кнопка заблокирована - ${evt.target.disabled}`);
-    // evt.target.disabled = true;
     this.#handleButtonClick();
   };
 
   constructor ({onButtonClick}) {
     super();
     this.#handleButtonClick = onButtonClick;
+    this._restoreHandlers();
+  }
 
-    this.element.addEventListener('click', this.#buttonClickHandler);
+  set isDisabled(isDisabled) {
+    this.#isDisabled = isDisabled;
+  }
+
+  get isDisabled() {
+    return this.#isDisabled;
   }
 
   get template() {
-    return createAddPointButtonTemplate();
+    return createAddPointButtonTemplate(this.#isDisabled);
+  }
+
+  rerenderButton() {
+    const prevElement = this.element;
+    const parent = prevElement.parentElement;
+    this.removeElement();
+    const newElement = this.element;
+    parent.replaceChild(newElement, prevElement);
+
+    this._restoreHandlers();
+  }
+
+  _restoreHandlers() {
+    this.element.addEventListener('click', this.#buttonClickHandler);
   }
 
 }

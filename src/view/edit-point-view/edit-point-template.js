@@ -3,7 +3,7 @@ import { getAllOffersByType, } from '../../utils/point';
 
 const getFirstTitleWord = (text) => text.trim().toLowerCase().split(/\s+/)[0];
 
-const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) => isNewPoint ? `
+const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) =>  isNewPoint ? `
                   <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>` : `
 
@@ -12,11 +12,9 @@ const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) => isNewP
                   <button class="event__rollup-btn" type="button">`;
 
 const createDestinationListTemplate = (destinations) => {
-  // console.log(destinations);
   let cities = '';
 
   destinations.forEach((destination) => {
-    // console.log(destination);
     cities += `
     <option value="${destination}"></option>
     `;
@@ -41,9 +39,7 @@ const createTypeListTemplate = (types) => {
 };
 
 const createOffersTemplate = (point) => {
-  // ToDo:
-  // если нет выбранных офферов то создаем просто все предложения серыми
-  // есл нет описания объекта
+
   const allOffersByType = getAllOffersByType(point.allOffers, point.type);
   const idsSelectedOffers = new Set(point.offers.map((offer) => offer.id));
   let offersStr = '';
