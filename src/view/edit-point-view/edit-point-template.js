@@ -3,7 +3,7 @@ import { getAllOffersByType, } from '../../utils/point';
 
 const getFirstTitleWord = (text) => text.trim().toLowerCase().split(/\s+/)[0];
 
-const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) =>  isNewPoint ? `
+const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) => isNewPoint ? `
                   <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">Cancel</button>` : `
 

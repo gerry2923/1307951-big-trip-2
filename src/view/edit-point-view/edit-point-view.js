@@ -26,7 +26,7 @@ export default class EditPointView extends AbstractStatefulView {
 
       await this.#handelNewFormSubmit(EditPointView.parseStateToPoint(this._state));
       this.#handelAddNewButtonEvent();
-    } catch(err) {}
+    } catch(err) { /* empty */ }
 
   };
 
@@ -213,6 +213,7 @@ export default class EditPointView extends AbstractStatefulView {
         this.element.querySelector('#event-start-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
@@ -248,6 +249,7 @@ export default class EditPointView extends AbstractStatefulView {
         this.element.querySelector('#event-end-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
@@ -285,6 +287,7 @@ export default class EditPointView extends AbstractStatefulView {
         this.element.querySelector('#event-start-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
@@ -318,6 +321,7 @@ export default class EditPointView extends AbstractStatefulView {
         this.element.querySelector('#event-end-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,

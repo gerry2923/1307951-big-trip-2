@@ -66,7 +66,7 @@ export default class PointPresenter {
         UpdateType.MINOR,
         { ...this.#pointData, isFavorite: !this.#pointData.isFavorite }
       );
-    } catch (err) {}
+    } catch (err) { /* empty */ }
 
   };
 
@@ -83,7 +83,7 @@ export default class PointPresenter {
         update
       );
       this.#replaceFormToCard();
-    } catch (err) {}
+    } catch (err) { /* empty */ }
   };
 
   #handleDeleteClick = (point) => {
