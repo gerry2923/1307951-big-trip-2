@@ -123,7 +123,7 @@ export const createEditPointTemplate = (point) => `
                       ${point.type}
                     </label>
 
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : '' } autocomplete="off">
 
                     <datalist id="destination-list-1">
                       ${createDestinationListTemplate(point.destinationsOptions)}

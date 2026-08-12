@@ -11,8 +11,8 @@ export default class EditPointView extends AbstractStatefulView {
   #handleCloseFrom = null;
   #handleFormSubmit = null;
   #handleDeleteClick = null;
-  #datepickerStartTime = null;
-  #datepickerEndTime = null;
+  #startPicker = null;
+  #endPicker = null;
   #additionalOptions = null;
   #isPointNew = false;
 
@@ -20,13 +20,15 @@ export default class EditPointView extends AbstractStatefulView {
   #handelNewFormSubmit = null;
   #handelAddNewButtonEvent = null;
 
+
+  /** и тут */
   #formSubmitNewPointHandler = async (evt) => {
     evt.preventDefault();
     try {
 
       await this.#handelNewFormSubmit(EditPointView.parseStateToPoint(this._state));
       this.#handelAddNewButtonEvent();
-    } catch(err) { /* empty */ }
+    } catch (err) { /* empty */ }
 
   };
 
@@ -40,9 +42,12 @@ export default class EditPointView extends AbstractStatefulView {
     this.#handleCloseFrom();
   };
 
-  #formSubmitHandler = (evt) => {
+  /** тут  */
+  #formSubmitHandler = async (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+    try {
+      await this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+    } catch (error) { /* empty */ }
   };
 
   #dateFromChangeHandler = ([userDate]) => {
@@ -205,11 +210,83 @@ export default class EditPointView extends AbstractStatefulView {
     this.#setDatepicker();
   }
 
-  #setDatepicker() {
+  #addMinutes = (date, minutes) => new Date(date.getTime() + minutes * 60000);
+  // dayBefore = (date) => new Date(date.getTime() - 86400000);
+  /** */
+  #onStartDateChange = (selectedDates) => {
+    const startDate = selectedDates[0];
+    const dateFromStr = moment.utc(startDate).toISOString();
+    const now = new Date();
 
+    if (!this.#endPicker) {
+      return;
+    }
+
+    this.#endPicker.set('minDate', now);
+    this.#endPicker.set('maxDate', null);
+    // выбранное число не должно быть больше сегодня
+    if (selectedDates.length > 0) {
+      const fiveMinutesLater = this.#addMinutes(startDate, 5);
+
+      this.#endPicker.set('disable', [
+        function (date) {
+          return (date < startDate);
+        }
+      ]);
+
+      if (this.#endPicker.selectedDates[0] < startDate) {
+        const dateToStr = moment.utc(fiveMinutesLater).toISOString();
+        this.updateElement({
+          dateFrom: dateFromStr,
+          dateTo: dateToStr,
+        });
+
+        return;
+      }
+    }
+
+    this.updateElement({
+      dateFrom: dateFromStr,
+    });
+
+  };
+
+  #onEndDateChange = (selectedDates) => {
+    const startDate = this.#startPicker.selectedDates[0];
+    const dateToStr = moment.utc(selectedDates[0]).toISOString();
+
+    if (!this.#startPicker) {
+      return;
+    }
+
+    if(this.#startPicker.selectedDates.length > 0) {
+      this.#endPicker.set('minDate', this.#startPicker.selectedDates[0]);
+    } else {
+      this.#endPicker.set('minDate', new Date());
+    }
+
+    if (selectedDates[0] < startDate) {
+      const fiveMinFromStart = this.#addMinutes(startDate, 5);
+      const fiveMinFromStartStr = moment.utc(fiveMinFromStart).toISOString();
+
+      this.updateElement({
+        dateTo: fiveMinFromStartStr,
+      });
+      return;
+    }
+
+    this.updateElement({
+      dateTo: dateToStr,
+    });
+  };
+
+
+  #setDatepicker() {
+    // для редактирования
+    const now = new Date();
     if (this._state.dateFrom && this._state.dateTo) {
 
-      this.#datepickerStartTime = flatpickr(
+      this.#startPicker = flatpickr(
         this.element.querySelector('#event-start-time-1'),
         {
           enableTime: true,
@@ -217,8 +294,9 @@ export default class EditPointView extends AbstractStatefulView {
           time_24hr: true,
           utc: true,
           allowInput: false,
-          // defaultDate: this._state.dateFrom,//
           defaultDate: (new Date()).toISOString(),
+          minDate: now,
+          maxDate: null,
 
           parseDate: function (dateStr) {
             return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
@@ -241,11 +319,12 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+          // onChange: this.#dateFromChangeHandler,
+          onChange: this.#onStartDateChange,
         }
       );
 
-      this.#datepickerEndTime = flatpickr(
+      this.#endPicker = flatpickr(
         this.element.querySelector('#event-end-time-1'),
         {
           enableTime: true,
@@ -254,6 +333,9 @@ export default class EditPointView extends AbstractStatefulView {
           utc: true,
           allowInput: false,
           defaultDate: this._state.dateTo,
+          allowInvalidPreload: true,
+          minDate: this._state.dateFrom,
+          maxDate: null,
 
           parseDate: function (dateStr) {
             return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
@@ -275,15 +357,23 @@ export default class EditPointView extends AbstractStatefulView {
             },
             today: 'Сегодня'
           },
-
-          onChange: this.#dateToChangeHandler,
+          // onChange: this.#dateToChangeHandler,
+          onChange: this.#onEndDateChange,
         }
       );
 
-      this.#datepickerStartTime.setDate(this._state.dateFrom);
-      this.#datepickerEndTime.setDate(this._state.dateTo);
+      this.#startPicker.setDate(this._state.dateFrom);
+      this.#endPicker.setDate(this._state.dateTo);
+
+      // this.#endPicker.set('disable', [
+      //   function (date) {
+      //     return (date < this.#startPicker.selectedDates[0]);
+      //   }
+      // ]);
+
+      // для создания новой точки
     } else {
-      this.#datepickerStartTime = flatpickr(
+      this.#startPicker = flatpickr(
         this.element.querySelector('#event-start-time-1'),
         {
           enableTime: true,
@@ -291,6 +381,8 @@ export default class EditPointView extends AbstractStatefulView {
           time_24hr: true,
           utc: true,
           allowInput: false,
+          minDate: now,
+          maxDate: null,
 
           parseDate: function (dateStr) {
             return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
@@ -313,11 +405,11 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateFromChangeHandler,
+          onChange: this.#onStartDateChange,
         }
       );
 
-      this.#datepickerEndTime = flatpickr(
+      this.#endPicker = flatpickr(
         this.element.querySelector('#event-end-time-1'),
         {
           enableTime: true,
@@ -326,6 +418,8 @@ export default class EditPointView extends AbstractStatefulView {
           utc: true,
           allowInput: false,
           // defaultDate: '',
+          minDate: now,
+          maxDate: null,
 
           parseDate: function (dateStr) {
             return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
@@ -348,23 +442,25 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateToChangeHandler,
+          // onChange: this.#dateToChangeHandler,
+          onChange: this.#onEndDateChange,
         }
       );
     }
+
   }
 
   removeElement() {
     super.removeElement();
 
-    if (this.#datepickerStartTime) {
-      this.#datepickerStartTime.destroy();
-      this.#datepickerStartTime = null;
+    if (this.#startPicker) {
+      this.#startPicker.destroy();
+      this.#startPicker = null;
     }
 
-    if (this.#datepickerEndTime) {
-      this.#datepickerEndTime.destroy();
-      this.#datepickerEndTime = null;
+    if (this.#endPicker) {
+      this.#endPicker.destroy();
+      this.#endPicker = null;
     }
   }
 
@@ -397,7 +493,7 @@ export default class EditPointView extends AbstractStatefulView {
 
   static parseStateToPoint(state) {
 
-    const point = { ...state};
+    const point = { ...state };
 
     if (point.offers.length) {
       point.offers = point.offers.map((offer) => offer.id);
