@@ -109,7 +109,6 @@ export default class HeaderPresenter {
     return price;
   };
 
-
   renderTripInfo() {
 
     if (this.#allDestinations === null) {

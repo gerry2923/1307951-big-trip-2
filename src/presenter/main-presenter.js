@@ -167,13 +167,14 @@ export default class MainPresenter {
   };
 
 
-  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange }) {
+  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange, }) {
     this.#mainContainer = mainContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
     this.#newPointEventHandler = onNewPointChange;
+
 
     this.#pointsModel.addObserver(this.#handleModelPoint);
     this.#filtersModel.addObserver(this.#handleModelPoint);

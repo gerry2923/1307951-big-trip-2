@@ -76,7 +76,7 @@ export default class EditPointView extends AbstractStatefulView {
   #isFormValid = () => {
     const { destination, dateFrom, dateTo, basePrice, allDestinations } = this._state;
 
-    const isDestination = allDestinations.includes(destination);
+    const isDestination = allDestinations.some((destin) => destin.name === destination.name);
     const areDatesSelected = !!dateFrom && !!dateTo;
     const isDatesOrderCorrect = dayjs(dateTo).isAfter(dayjs(dateFrom));
     const priceAsNumber = Number(basePrice);
@@ -103,25 +103,25 @@ export default class EditPointView extends AbstractStatefulView {
 
   #changeDestinationHandler = (evt) => {
     evt.preventDefault();
-    let inputValue = evt.target.value.trim();
+    const isCitiInTheList = this._state.allDestinations.some((destination) =>
+      destination.name.toLowerCase() === evt.target.value.trim().toLowerCase());
+    let currentDestination = {};
 
-    if (!inputValue || typeof inputValue !== 'string') {
-      return;
-    }
-
-    inputValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1).toLowerCase();
-
-    const cityInTheList = this._state.allDestinations.find((destination) => destination.name === inputValue);
-
-    if (cityInTheList === undefined) {
-      evt.target.style.color = 'red';
+    if(isCitiInTheList){
+      currentDestination = this._state.allDestinations.find((destination) =>
+        destination.name.toLowerCase() === evt.target.value.trim().toLowerCase());
     } else {
-      this.updateElement({
-        destination: cityInTheList,
-      });
-      evt.target.style.color = 'black';
-
+      currentDestination = {
+        name: evt.target.value,
+        id: '',
+        pictures: [],
+        description: '',
+      };
     }
+
+    this.updateElement({
+      destination: currentDestination,
+    });
 
   };
 
@@ -206,7 +206,7 @@ export default class EditPointView extends AbstractStatefulView {
     }
 
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeHandler);
-    this.element.querySelector('#event-destination-1').addEventListener('input', this.#changeDestinationHandler);
+    this.element.querySelector('#event-destination-1').addEventListener('blur', this.#changeDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
 
     const offerElement = this.element.querySelector('.event__section--offers');

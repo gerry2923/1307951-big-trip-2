@@ -52,7 +52,6 @@ export default class PagePresenter {
       pointsModel: this.#pointsModel,
       onNewPointChange: this.#handleNewPointChange,
       onTripInfoChange: this.#handleTripInfoCnange,
-
     });
 
     this.#headerPresenter = new HeaderPresenter({

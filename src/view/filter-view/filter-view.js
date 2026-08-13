@@ -37,7 +37,6 @@ export default class FilterView extends AbstractView{
     return createFilterTemplate(this.#currentFilter);
   }
 
-
   disableFilterButton() {
     this.element.querySelector('trip-filters__filter-input:checked').setAttribute('disabled', 'true');
   }
