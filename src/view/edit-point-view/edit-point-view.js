@@ -1,5 +1,5 @@
 import { createEditPointTemplate } from './edit-point-template';
-import { getAllOffersByType, getSelectedOffers, isFromDateEarlierToDate } from '../../utils/point';
+import { getAllOffersByType, getSelectedOffers } from '../../utils/point';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import moment from 'moment-timezone';

@@ -86,8 +86,6 @@ export const getSelectedOffers = (offers, offersIds, type = 'flight') => {
  */
 export const isDateEquall = (dateA, dateB) => (dateA === null && dateB === null) || dayjs(dateA).isSame(dateB, 'D');
 
-export const isFromDateEarlierToDate = (dateFrom, dateTo) => (dayjs(dateTo).valueOf() - dayjs(dateFrom).valueOf()) > 300000;
-
 export const getTripDatePeriod = (date1, date2) => {
   const dayFrom = dayjs(date1);
   const dayTo = dayjs(date2);
