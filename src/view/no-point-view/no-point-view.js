@@ -7,7 +7,6 @@ export default class EmptyPointView extends AbstractView{
   constructor({filterType}) {
     super();
     this.#filterType = filterType;
-    console.log(this.#filterType);
   }
 
   get template() {

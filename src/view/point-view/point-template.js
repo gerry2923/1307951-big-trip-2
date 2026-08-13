@@ -1,4 +1,4 @@
-import { getDateDifference, getCustomTime, getMonthDay, changeToFirstCapitalLetter } from '../../utils/common';
+import { getDateDifference, getCustomTime, getMonthDay, changeToFirstCapitalLetter } from '../../utils/point';
 
 const getOffersString = (point) => {
   let offers = '';

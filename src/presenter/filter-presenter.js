@@ -2,11 +2,6 @@ import FilterView from '../view/filter-view/filter-view';
 import { render, replace, remove } from '../framework/render';
 import { UpdateType } from '../const';
 
-/**
- * устанавливает обработчик на модель фильтра и точек
- * реализует отрисовку фильтров
- */
-
 export default class FilterPresenter {
   #filterContainer = null;
   #filterComponent = null;
@@ -21,7 +16,6 @@ export default class FilterPresenter {
     if(this.#filtersModel.filter === filterType) {
       return;
     }
-    console.log(`фильтр изменился ${filterType}, значит надо поменять модель`);
 
     this.#filtersModel.setFilter(UpdateType.MAJOR, filterType);
   };

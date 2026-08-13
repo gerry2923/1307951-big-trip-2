@@ -12,11 +12,9 @@ const createControlButtonTemplate = (isNewPoint, isSaving, isDeleting) => isNewP
                   <button class="event__rollup-btn" type="button">`;
 
 const createDestinationListTemplate = (destinations) => {
-  // console.log(destinations);
   let cities = '';
 
   destinations.forEach((destination) => {
-    // console.log(destination);
     cities += `
     <option value="${destination}"></option>
     `;
@@ -41,9 +39,7 @@ const createTypeListTemplate = (types) => {
 };
 
 const createOffersTemplate = (point) => {
-  // ToDo:
-  // если нет выбранных офферов то создаем просто все предложения серыми
-  // есл нет описания объекта
+
   const allOffersByType = getAllOffersByType(point.allOffers, point.type);
   const idsSelectedOffers = new Set(point.offers.map((offer) => offer.id));
   let offersStr = '';
@@ -127,7 +123,7 @@ export const createEditPointTemplate = (point) => `
                       ${point.type}
                     </label>
 
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : '' } autocomplete="off">
 
                     <datalist id="destination-list-1">
                       ${createDestinationListTemplate(point.destinationsOptions)}

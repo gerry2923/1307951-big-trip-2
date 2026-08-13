@@ -2,17 +2,12 @@ import AbstractView from '../../framework/view/abstract-view';
 import { createFilterTemplate, createDisabledFilterTemplate } from './filter-template';
 
 
-/**
- * установить событие на клике
- * отрисовать активный фильтр
- */
 export default class FilterView extends AbstractView{
   #currentFilter = null;
   #handleFilterClick = null;
   #isDisabled = null;
 
   #filterTypeChange = (evt) => {
-    console.log('нажали на фильтры');
     evt.preventDefault();
 
     if(evt.target.tagName !== 'LABEL') {
@@ -21,8 +16,7 @@ export default class FilterView extends AbstractView{
 
     const input = evt.target.previousElementSibling;
 
-    if (input && input.tagName === 'INPUT') {
-      console.log(input.value);
+    if (input && input.tagName === 'INPUT' && !input.hasAttribute('disabled')) {
       this.#handleFilterClick(input.value);
     }
   };
@@ -41,6 +35,10 @@ export default class FilterView extends AbstractView{
     }
 
     return createFilterTemplate(this.#currentFilter);
+  }
+
+  disableFilterButton() {
+    this.element.querySelector('trip-filters__filter-input:checked').setAttribute('disabled', 'true');
   }
 
 }

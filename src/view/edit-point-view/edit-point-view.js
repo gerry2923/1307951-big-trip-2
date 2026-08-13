@@ -1,48 +1,38 @@
 import { createEditPointTemplate } from './edit-point-template';
-import { getAllOffersByType, getSelectedOffers, isFromDateEarlierToDate } from '../../utils/point';
+import { getAllOffersByType, getSelectedOffers } from '../../utils/point';
 import AbstractStatefulView from '../../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import moment from 'moment-timezone';
 import dayjs from 'dayjs';
 import 'flatpickr/dist/flatpickr.min.css';
-/**
- * Этот класс можно использовать для добавления новой точки маршрута, тогда нужно по умолчанию добавить cosnt BLANK_POINT {} и использовать его в значении по умолчанию для точки в конструкторе, те. point = BLANK_POINT ====>> его добавлять будем при клике на кнопку '+New Event'
-*
-const BLANK_POINT = {
-  id: '',
-  basePrice: 0,
-  dateFrom: '',
-  dateTo: '',
-  destination: '',
-  isFavorite: false,
-  offers: [],
-  type: 'flight',
-  allOffers: [],
-  allDestinations: [],
-  typesOptions: [], // это поле должно быть заполнено из pointsModel
-  destinationsOptions: [], // это поле должно быть заполнено pointsModel
-};
-*/
+
 
 export default class EditPointView extends AbstractStatefulView {
-  // #point = null;
   #handleCloseFrom = null;
   #handleFormSubmit = null;
   #handleDeleteClick = null;
-  #datepickerStartTime = null;
-  #datepickerEndTime = null;
+  #startPicker = null;
+  #endPicker = null;
   #additionalOptions = null;
   #isPointNew = false;
 
   #handleCancelClick = null;
   #handelNewFormSubmit = null;
   #handelAddNewButtonEvent = null;
+  #handleFormValidation = null;
 
-  #formSubmitNewPointHandler = (evt) => {
+
+  #formSubmitNewPointHandler = async (evt) => {
     evt.preventDefault();
-    console.log('save button pressed');
-    this.#handelNewFormSubmit(EditPointView.parseStateToPoint(this._state));
-    this.#handelAddNewButtonEvent();
+
+    if (this.#isFormValid()) {
+      try {
+        await this.#handelNewFormSubmit(EditPointView.parseStateToPoint(this._state));
+        this.#handelAddNewButtonEvent();
+      } catch (err) { /* empty */ }
+    } else {
+      this.#handleFormValidation();
+    }
   };
 
   #formDeleteHandler = (evt) => {
@@ -55,48 +45,50 @@ export default class EditPointView extends AbstractStatefulView {
     this.#handleCloseFrom();
   };
 
-  #formSubmitHandler = (evt) => {
+  #formSubmitHandler = async (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+
+    if (this.#isFormValid()) {
+      try {
+        await this.#handleFormSubmit(EditPointView.parseStateToPoint(this._state));
+      } catch (error) { /* empty */ }
+    } else {
+      this.#handleFormValidation();
+    }
+
+
   };
 
   #dateFromChangeHandler = ([userDate]) => {
     const dateFromStr = moment.utc(userDate).toISOString();
-
-    if (this._state.dateTo !== '' && !isFromDateEarlierToDate(dateFromStr, this._state.dateTo)) {
-      const newToDate = dayjs(dateFromStr).add(5, 'minute').toISOString();
-
-      this.updateElement({
-        dateFrom: dateFromStr,
-        dateTo: newToDate,
-      });
-      return;
-    }
-
     this.updateElement({
-      // dateFrom: moment.utc(userDate).toISOString(),
-      dateFrom: dateFromStr
+      dateFrom: dateFromStr,
     });
   };
 
   #dateToChangeHandler = ([userDate]) => {
     const dateToStr = moment.utc(userDate).toISOString();
-
-    if (this._state.dateFrom !== '' && !isFromDateEarlierToDate(this._state.dateFrom, dateToStr)) {
-      let newToDate = dayjs(this._state.dateFrom).add(5, 'minute');
-      console.log(newToDate.toString());
-      newToDate = newToDate.toISOString();
-
-      this.updateElement({
-        dateTo: newToDate,
-      });
-
-      return;
-    }
-
     this.updateElement({
       dateTo: dateToStr,
     });
+  };
+
+  #isFormValid = () => {
+    const { destination, dateFrom, dateTo, basePrice, allDestinations } = this._state;
+
+    const isDestination = allDestinations.some((destin) => destin.name === destination.name);
+    const areDatesSelected = !!dateFrom && !!dateTo;
+    const isDatesOrderCorrect = dayjs(dateTo).isAfter(dayjs(dateFrom));
+    const priceAsNumber = Number(basePrice);
+    const isPrice = Number.isInteger(basePrice) && (priceAsNumber > 0);
+
+    return (
+      isDestination &&
+      areDatesSelected &&
+      isDatesOrderCorrect &&
+      isPrice
+    );
+
   };
 
   #eventTypeHandler = (evt) => {
@@ -111,34 +103,32 @@ export default class EditPointView extends AbstractStatefulView {
 
   #changeDestinationHandler = (evt) => {
     evt.preventDefault();
-    let inputValue = evt.target.value.trim();
+    const isCitiInTheList = this._state.allDestinations.some((destination) =>
+      destination.name.toLowerCase() === evt.target.value.trim().toLowerCase());
+    let currentDestination = {};
 
-    if (!inputValue || typeof inputValue !== 'string') {
-      return;
-    }
-
-    inputValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1).toLowerCase();
-    console.log(inputValue);
-
-    const cityInTheList = this._state.allDestinations.find((destination) => destination.name === inputValue)
-
-    if (cityInTheList === undefined) {
-      evt.target.style.color = 'red';
+    if(isCitiInTheList){
+      currentDestination = this._state.allDestinations.find((destination) =>
+        destination.name.toLowerCase() === evt.target.value.trim().toLowerCase());
     } else {
-      this.updateElement({
-        destination: cityInTheList,
-      });
-      evt.target.style.color = 'black';
-
+      currentDestination = {
+        name: evt.target.value,
+        id: '',
+        pictures: [],
+        description: '',
+      };
     }
+
+    this.updateElement({
+      destination: currentDestination,
+    });
 
   };
 
   #changePriceHandler = (evt) => {
     evt.preventDefault();
-    let priceValue = Math.abs(parseInt(evt.target.value, 10)) || 0;
+    const priceValue = Math.abs(parseInt(evt.target.value, 10)) || 0;
     this.updateElement({
-      // basePrice: evt.target.value,
       basePrice: priceValue,
     });
   };
@@ -147,11 +137,8 @@ export default class EditPointView extends AbstractStatefulView {
     evt.preventDefault();
 
     const offerId = evt.target.id;
-
     const allTypeOffers = getAllOffersByType(this.#additionalOptions.allOffers, this._state.type);
-
     const offerToAdd = allTypeOffers.find((offer) => offer.id === offerId);
-
     const newOffers = this._state.offers;
     const index = newOffers.findIndex((offer) => offer.id === offerId);
 
@@ -184,18 +171,19 @@ export default class EditPointView extends AbstractStatefulView {
     onDeleteClick,
     onCancelClick,
     onNewFromSubmit,
-    onAddNewButtonClick }) {
+    onAddNewButtonClick,
+    onValidationFail }) {
 
     super();
-    // типы транспора, все города, все точки назначения, все предложения по типам
     this.#additionalOptions = additionalOptions;
-    this.#isPointNew = isPointNew
+    this.#isPointNew = isPointNew;
     this.#handleCloseFrom = onCloseFormClick;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleDeleteClick = onDeleteClick;
     this.#handleCancelClick = onCancelClick;
     this.#handelNewFormSubmit = onNewFromSubmit;
     this.#handelAddNewButtonEvent = onAddNewButtonClick;
+    this.#handleFormValidation = onValidationFail;
 
     this._state = EditPointView.parsePointToState(point, this.#additionalOptions, this.#isPointNew);
     this._restoreHandlers();
@@ -205,67 +193,47 @@ export default class EditPointView extends AbstractStatefulView {
     return createEditPointTemplate(this._state);
   }
 
-  // обязательный для выполнения метод перерисовки
   _restoreHandlers() {
-    // если точка создается
     if (this.#isPointNew) {
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#cancelButtonHandler);
       this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitNewPointHandler);
 
     } else {
-      // нажатие на стрелку вверх аналогично нажатию на esc
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-      // нажатие на кнопку delete
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
-      // нажатие на кнопку save SUBMIT
       this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitHandler);
 
     }
 
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeHandler);
-
-    // this.element.querySelector('#event-destination-1').addEventListener('change', this.#changeDestinationHandler);
-    this.element.querySelector('#event-destination-1').addEventListener('input', this.#changeDestinationHandler)
-
+    this.element.querySelector('#event-destination-1').addEventListener('blur', this.#changeDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
 
     const offerElement = this.element.querySelector('.event__section--offers');
     if (offerElement) {
       offerElement.addEventListener('change', this.#changeOfferHandler,);
     }
-
-    // this.element.querySelector('').addEventListener('',);
     this.#setDatepicker();
   }
 
-  // TODO: выполнить проверку правильности выбора даты (дата после не должна быть ранее даты до)
 
   #setDatepicker() {
-    // проверяет, установлена ли дата, если да, то ставим ее в input
 
     if (this._state.dateFrom && this._state.dateTo) {
 
-      this.#datepickerStartTime = flatpickr(
+      this.#startPicker = flatpickr(
         this.element.querySelector('#event-start-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
-          // defaultDate: this._state.dateFrom,//
           defaultDate: (new Date()).toISOString(),
-
-          parseDate: function (dateStr) {
-            return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
-          },
-
-          formatDate: function (date) {
-            return moment.utc(date).format('DD/MM/YY HH:mm');
-          },
-
-          // Настройка локализации (подписи кнопок на русском)
+          dateFormat: 'd/m/y H:i',
+          altFormat: 'd/m/y H:i',
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -277,30 +245,28 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateFromChangeHandler,
         }
       );
 
-      this.#datepickerEndTime = flatpickr(
+      this.#endPicker = flatpickr(
         this.element.querySelector('#event-end-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
           defaultDate: this._state.dateTo,
+          allowInvalidPreload: true,
+          minDate: this._state.dateFrom,
+          maxDate: null,
+          dateFormat: 'd/m/y H:i',
+          altFormat: 'd/m/y H:i',
 
-          parseDate: function (dateStr) {
-            return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
-          },
 
-          formatDate: function (date) {
-            return moment.utc(date).format('DD/MM/YY HH:mm');
-          },
-
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -311,35 +277,28 @@ export default class EditPointView extends AbstractStatefulView {
             },
             today: 'Сегодня'
           },
-
-          onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateToChangeHandler,
         }
       );
 
-      this.#datepickerStartTime.setDate(this._state.dateFrom);
-      this.#datepickerEndTime.setDate(this._state.dateTo);
+      this.#startPicker.setDate(this._state.dateFrom);
+      this.#endPicker.setDate(this._state.dateTo);
+
     } else {
-      this.#datepickerStartTime = flatpickr(
+      this.#startPicker = flatpickr(
         this.element.querySelector('#event-start-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
-          // defaultDate: this._state.dateFrom,//
-          // defaultDate: (new Date()).toISOString(),
 
-          parseDate: function (dateStr) {
-            return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
-          },
+          dateFormat: 'd/m/y H:i',
+          altFormat: 'd/m/y H:i',
 
-          formatDate: function (date) {
-            return moment.utc(date).format('DD/MM/YY HH:mm');
-          },
-
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -350,31 +309,23 @@ export default class EditPointView extends AbstractStatefulView {
             },
             today: 'Сегодня'
           },
-
-          onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateFromChangeHandler
         }
       );
 
-      this.#datepickerEndTime = flatpickr(
+      this.#endPicker = flatpickr(
         this.element.querySelector('#event-end-time-1'),
         {
           enableTime: true,
+          // eslint-disable-next-line camelcase
           time_24hr: true,
           utc: true,
           allowInput: false,
-          // defaultDate: '',
+          dateFormat: 'd/m/y H:i',
+          altFormat: 'd/m/y H:i',
 
-          parseDate: function (dateStr) {
-            return moment.utc(dateStr, 'YYYY-MM-DDTHH:mm:ss.SSSZ', true).toDate();
-          },
-
-          formatDate: function (date) {
-            return moment.utc(date).format('DD/MM/YY HH:mm');
-          },
-
-          // Настройка локализации (подписи кнопок на русском)
           locale: {
-            firstDayOfWeek: 1, // неделя начинается с понедельника
+            firstDayOfWeek: 1,
             weekdays: {
               shorthand: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
               longhand: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
@@ -386,49 +337,46 @@ export default class EditPointView extends AbstractStatefulView {
             today: 'Сегодня'
           },
 
-          onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+          onChange: this.#dateToChangeHandler,
         }
       );
     }
-    // return false;
+
   }
 
   removeElement() {
     super.removeElement();
 
-    if (this.#datepickerStartTime) {
-      this.#datepickerStartTime.destroy();
-      this.#datepickerStartTime = null;
+    if (this.#startPicker) {
+      this.#startPicker.destroy();
+      this.#startPicker = null;
     }
 
-    if (this.#datepickerEndTime) {
-      this.#datepickerEndTime.destroy();
-      this.#datepickerEndTime = null;
+    if (this.#endPicker) {
+      this.#endPicker.destroy();
+      this.#endPicker = null;
     }
   }
 
-  /**
-   * @param {*} point сбрасываем объект точки, если нам не надо сохранять изменения
-   */
+
   reset(point) {
     this.updateElement(
       EditPointView.parsePointToState(point, this.#additionalOptions)
     );
   }
 
-  /*
-  * ??? Если точка пустая, то что???
-  */
 
   static parsePointToState(point, additionalOptions, isPointNew) {
-    // TODO|!!!!! универсальный метод по поиску всех примененных опций и поиску описания по id и заменить его везде
-    const appliedOptions = point.offers.length ? getSelectedOffers(additionalOptions.allOffers, point.offers, point.type) : [];
 
+    const appliedOptions = point.offers.length ? getSelectedOffers(additionalOptions.allOffers, point.offers, point.type) : [];
     const fullDescriptionDestination = point.destination !== '' ? additionalOptions.allDestinations.find((destination) => destination.id === point.destination) : '';
 
     const newPoint = {
       ...point,
       isPointNew: isPointNew, // используем геттер
+      isSaving: false,
+      isDeleting: false,
+      isDisabled: false,
       offers: appliedOptions,
       destination: fullDescriptionDestination,
       ...additionalOptions,
@@ -436,19 +384,10 @@ export default class EditPointView extends AbstractStatefulView {
 
     return newPoint;
   }
-  /**
- * тут эти поля надо удалить
- */
-  // вызывается когда форма сохраняется
 
   static parseStateToPoint(state) {
-    console.log(state);
 
-    const point = { ...state,
-      isSaving: false,
-      isDeliting: false,
-      isDisabled: false,
-    };
+    const point = { ...state };
 
     if (point.offers.length) {
       point.offers = point.offers.map((offer) => offer.id);
@@ -456,27 +395,21 @@ export default class EditPointView extends AbstractStatefulView {
       point.offers = [];
     }
 
-    // заменяет поля с объектами на id
     point.destination = point.destination.id;
 
 
     if (state.isPointNew) {
-      console.log('Добавляем точку');
       delete point.id;
     }
 
-    // удаляем лишние поля
     delete point.allOffers;
     delete point.allDestinations;
     delete point.typesOptions;
     delete point.destinationsOptions;
     delete point.isPointNew;
-    delete point.isDeliting;
+    delete point.isDeleting;
     delete point.isSaving;
     delete point.isDisabled;
-
-    console.log('получилась такая точка');
-    console.log(point);
 
     return point;
   }
