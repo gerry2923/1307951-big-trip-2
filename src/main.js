@@ -11,7 +11,7 @@ dayjs.extend(utc);
 
 import PointApiService from './points-api-service';
 
-const AUTHORIZATION = 'Basic qfwminrz5j23k1x';
+const AUTHORIZATION = 'Basic qfmiinrz5j23k1x';
 const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
 
 const siteBodyElement = document.querySelector('.page-body');
