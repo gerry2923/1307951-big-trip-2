@@ -26,7 +26,8 @@ export default class PointApiService extends ApiService {
 
   async updatePoint(point) {
     const response = await this._load({
-      url: `points/${point.id}`,
+      //url: `points/${point.id}`,https://23.objects.htmlacademy.pro/big-trip
+      url: `https://23.objects.htmlacademy.pro/big-trip/pints/${point.id}`,
       method: Method.PUT,
       body: JSON.stringify(this.#adaptToServer(point)),
       headers: new Headers({'Content-Type': 'application/json'}),
@@ -50,7 +51,8 @@ export default class PointApiService extends ApiService {
 
   async deletePoint(point) {
     const response = await this._load({
-      url: `points/${point.id}`,
+      // url: `points/${point.id}`,
+      url: `https://23.objects.htmlacademy.pro/big-trip/pints/${point.id}`,
       method: Method.DELETE,
     });
 
