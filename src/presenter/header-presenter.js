@@ -70,6 +70,7 @@ export default class HeaderPresenter {
         this.clearHeader();
         this.init();
         break;
+
     }
   };
 
@@ -81,7 +82,7 @@ export default class HeaderPresenter {
 
   #extractTripTime = () => {
     const dateStartTrip = [...this.#pointsModel.points].sort(sortClosestDayFirst)[0].dateFrom;
-    const dateEndTrip = [...this.#pointsModel.points].sort(sortClosestDayFirst)[this.#pointsModel.points.length - 1].dateFrom;
+    const dateEndTrip = [...this.#pointsModel.points].sort(sortClosestDayFirst)[this.#pointsModel.points.length - 1].dateTo;
     const finalString = getTripDatePeriod(dateStartTrip, dateEndTrip);
     return finalString;
   };

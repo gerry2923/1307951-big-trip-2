@@ -24,7 +24,7 @@ export default class PagePresenter {
     this.#headerPresenter.renderTripInfo();
   };
 
-  constructor({ headerContainer, mainContainer, filtersModel, pointsModel,/*offers, destinations*/ }) {
+  constructor({ headerContainer, mainContainer, filtersModel, pointsModel,}) {
 
     this.#headerContainer = headerContainer;
     this.#mainContainer = mainContainer;

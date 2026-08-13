@@ -35,7 +35,7 @@ export default class MainPresenter {
   #pointsModel = null;
 
   #pointListComponent = null;
-  #noPointComponent = null; // когда нечему отображаться, нет ни одной точки
+  #noPointComponent = null;
   #sortComponent = null;
   #loadingComponent = new LoadingView();
   #errorComponent = new ErrorView();
@@ -53,6 +53,7 @@ export default class MainPresenter {
   #filterType = FilterTypes.EVERYTHING;
 
   #isLoading = true;
+  #isError = false;
   #newPointEventHandler = null;
 
   #uiBlocker = new UiBlocker({
@@ -88,6 +89,10 @@ export default class MainPresenter {
     this.init();
   };
 
+  #filterResetHandler = (filterType) => {
+    this.#filtersModel.setFilter(UpdateType.MINOR, filterType);
+  };
+
   #handleModelPoint = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
@@ -114,6 +119,11 @@ export default class MainPresenter {
 
         this.init();
         break;
+
+      case UpdateType.ERROR:
+        this.clearMainPage();
+        this.#isError = true;
+        this.init();
     }
   };
 
@@ -210,6 +220,7 @@ export default class MainPresenter {
       onModeChange: this.#handleModeChange,
       onAddNewButtonChange: this.#newPointEventHandler,
       removePresenter: this.#removePresenter,
+      onFilterReset: this.#filterResetHandler,
     });
 
     this.#newPointPresenter.isNewPoint = true;
@@ -259,16 +270,19 @@ export default class MainPresenter {
   renderNoPoint() {
     this.#noPointComponent = new NoPointView({ filterType: this.#filtersModel.filter });
     render(this.#noPointComponent, this.#mainContainer);
+
   }
 
   clearMainPage(resetSortType = true) {
     this.#isLoading = false;
+    this.#isError = false;
     this.#pointPresenters.forEach((pointPresenter) => pointPresenter.destroy());
     this.#pointPresenters.clear();
 
     remove(this.#sortComponent);
     remove(this.#pointListComponent);
     remove(this.#loadingComponent);
+    remove(this.#errorComponent);
 
     if (this.#noPointComponent) {
       remove(this.#noPointComponent);
@@ -276,6 +290,7 @@ export default class MainPresenter {
 
     if (resetSortType) {
       this.#currentSortType = SortTypes.DAY;
+
     }
   }
 
@@ -283,13 +298,23 @@ export default class MainPresenter {
     render(this.#loadingComponent, this.#mainContainer);
   }
 
+  #renderFailLoading() {
+    render(this.#errorComponent, this.#mainContainer);
+  }
+
   init() {
+    if (this.#isError) {
+      this.#renderFailLoading();
+      return;
+    }
+
     if(this.#isLoading) {
       this.#renderLoading();
       return;
     }
 
     const points = this.points;
+
     if (points.length === 0) {
       this.renderNoPoint();
       return;

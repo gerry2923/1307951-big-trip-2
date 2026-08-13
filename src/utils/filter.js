@@ -11,7 +11,7 @@ export const filter = {
     (dayjs.utc().diff(dayjs(point.dateFrom)) >= 0) &&
     (dayjs.utc().diff(dayjs(point.dateTo)) <= 0)),
 
-  [FilterTypes.PAST]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateFrom)) > 0),
+  [FilterTypes.PAST]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateTo)) > 0),
 };
 
 export const generateFilter = (points) => Object.entries(filter).map(

@@ -1,7 +1,7 @@
 import EditPointView from '../view/edit-point-view/edit-point-view';
 import PointView from '../view/point-view/point-view';
 
-import { UpdateType, UserAction } from '../const';
+import { FilterTypes, UpdateType, UserAction } from '../const';
 import { remove, render, replace } from '../framework/render';
 import { isDateEquall } from '../utils/point';
 
@@ -31,6 +31,7 @@ export default class PointPresenter {
 
   #handleDataChange = null;
   #handleModeChange = null;
+  #handleFilterReset = null;
   #handleNewPointButtonEvent = null;
   #removeFromPresentersSet = null;
 
@@ -98,10 +99,10 @@ export default class PointPresenter {
     try {
       await this.#handleDataChange(
         UserAction.ADD_POINT,
-        UpdateType.MINOR,
+        UpdateType.MAJOR,
         point,
       );
-
+      this.#handleFilterReset(FilterTypes.EVERYTHING);
       this.#handleNewPointButtonEvent();
     } catch (err) {
       throw new Error();
@@ -116,6 +117,10 @@ export default class PointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
+  #handleValidationFailure = () => {
+    this.setAborting();
+  };
+
 
   constructor({
     pointItemContainer,
@@ -125,7 +130,8 @@ export default class PointPresenter {
     onDataChange,
     onModeChange,
     onAddNewButtonChange,
-    removePresenter }) {
+    removePresenter,
+    onFilterReset }) {
 
     this.#pointContainerComponent = pointItemContainer;
     this.#pointContainer = this.#pointContainerComponent.element;
@@ -137,6 +143,7 @@ export default class PointPresenter {
     this.#handleModeChange = onModeChange;
     this.#handleNewPointButtonEvent = onAddNewButtonChange;
     this.#removeFromPresentersSet = removePresenter;
+    this.#handleFilterReset = onFilterReset;
 
   }
 
@@ -241,6 +248,7 @@ export default class PointPresenter {
       onCancelClick: this.#handleCancelClick,
       onNewFromSubmit: this.#handelNewFormSubmit,
       onAddNewButtonClick: this.#handleNewPointButtonEvent,
+      onValidationFail: this.#handleValidationFailure,
     });
 
 
@@ -281,6 +289,7 @@ export default class PointPresenter {
       onCancelClick: this.#handleCancelClick,
       onNewFromSubmit: this.#handelNewFormSubmit,
       onAddNewButtonClick: this.#handleNewPointButtonEvent,
+      onValidationFail: this.#handleValidationFailure,
     });
 
     render(this.#newPointComponent, this.#pointContainer);

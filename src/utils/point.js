@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import isBetween from 'dayjs/plugin/isBetween';
 import { MONTH } from '../const';
-const HOUR = 3600000; // milliseconds
-const DAY = 86400000; // milliseconds
+
+dayjs.extend(duration);
+dayjs.extend(isBetween);
 
 /**
  *
@@ -120,32 +123,26 @@ export const clearElement = (element) => {
  * @return {String} custom date format 02D 15M 00M
  */
 
-export const getDateDifference = (travelDateFrom, travelDateTo) => {
+export const getDateDifference = (startISO, endISO) => {
+  const startDate = dayjs(startISO);
+  const endDate = dayjs(endISO);
 
-  const dateFrom = Date.parse(travelDateFrom);
-  const dateTo = Date.parse(travelDateTo);
-
-  const delta = dateTo - dateFrom;
-
-  if(delta > 0) {
-    const date = new Date(delta);
-
-    if(delta < HOUR) {
-      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-      return `${minutes}М`;
-
-    } else if (delta < DAY) {
-      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-      const hours = String(date.getUTCHours()).padStart(2, '0');
-      return `${hours}H ${minutes}M`;
-
-    } else {
-      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-      const hours = String(date.getUTCHours()).padStart(2, '0');
-      const days = String(date.getUTCDate()).padStart(2, '0');
-      return `${days}D ${hours}H ${minutes}M`;
-    }
+  if (!startDate.isValid() || !endDate.isValid()) {
+    throw new Error('Неверный формат даты. Ожидается ISO 8601.');
   }
+
+  if (startDate.isAfter(endDate)) {
+    throw new Error('Дата "До" не может быть позже даты "После".');
+  }
+
+  const diffDuration = dayjs.duration(endDate.diff(startDate));
+
+  const days = Math.floor(diffDuration.asDays());
+
+  const hours = diffDuration.hours();
+  const minutes = diffDuration.minutes();
+
+  return `${days}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
 };
 
 /**
