@@ -139,6 +139,7 @@ export default class MainPresenter {
           await this.#pointsModel.updatePoint(updateType, update);
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
+          this.#uiBlocker.unblock();
           throw new Error();
         }
         break;
@@ -149,6 +150,7 @@ export default class MainPresenter {
           await this.#pointsModel.addPoint(updateType, update);
         } catch(err) {
           this.#newPointPresenter.setAborting();
+          this.#uiBlocker.unblock();
           throw new Error();
         }
         break;
@@ -159,6 +161,8 @@ export default class MainPresenter {
           await this.#pointsModel.deletePoint(updateType, update);
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
+          this.#uiBlocker.unblock();
+          throw new Error();
         }
         break;
     }
