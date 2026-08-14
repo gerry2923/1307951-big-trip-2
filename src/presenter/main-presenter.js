@@ -140,7 +140,7 @@ export default class MainPresenter {
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
           this.#uiBlocker.unblock();
-          // throw new Error();
+          throw new Error();
         }
         break;
 
@@ -151,7 +151,7 @@ export default class MainPresenter {
         } catch(err) {
           this.#newPointPresenter.setAborting();
           this.#uiBlocker.unblock();
-          // throw new Error();
+          throw new Error();
         }
         break;
 
@@ -162,7 +162,6 @@ export default class MainPresenter {
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
           this.#uiBlocker.unblock();
-          // throw new Error();
         }
         break;
     }

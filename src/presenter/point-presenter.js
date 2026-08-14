@@ -84,7 +84,7 @@ export default class PointPresenter {
         update
       );
       this.#replaceFormToCard();
-    } catch (err) { /* empty */ }
+    } catch (err) {/**empty */}
   };
 
   #handleDeleteClick = (point) => {
