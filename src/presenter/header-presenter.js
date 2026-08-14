@@ -8,6 +8,7 @@ import AddDisabledPointButtonView from '../view/add-point-button-view/add-disabl
 import { remove, render } from '../framework/render';
 import { sortClosestDayFirst, getTripDatePeriod } from '../utils/point';
 import { UpdateType } from '../const';
+import { filter } from '../utils/filter';
 
 
 export default class HeaderPresenter {
@@ -142,6 +143,7 @@ export default class HeaderPresenter {
       headerContainer: this.#headerContainer,
       filtersModel: this.#filtersModel,
       pointsModel: this.#pointsModel,
+      checkActivPointsNumber: this.#checkActivPointsNumber,
     });
 
     this.#filterPresenter.init();
@@ -182,6 +184,12 @@ export default class HeaderPresenter {
     this.renderNewPointButton();
   }
 
+  #checkActivPointsNumber = () => {
+    const filterType = this.#filtersModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[filterType](points);
+    return filteredPoints.length === 0;
+  };
 
   init() {
     if (this.#isLoading) {
@@ -192,6 +200,7 @@ export default class HeaderPresenter {
     if(this.#pointsModel.points && this.#pointsModel.points.length !== 0) {
       this.renderTripInfo();
     }
+
     this.renderHeaderElements();
 
   }

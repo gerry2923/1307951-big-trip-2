@@ -7,30 +7,40 @@ export default class FilterPresenter {
   #filterComponent = null;
   #filtersModel = null;
   #pointsModel = null;
+  #isDisabledFilterBtn = false;
+  #areActivePoints = null;
 
   #handleModelEvent = () => {
     this.init();
   };
 
   #handleFilterTypeChange = (filterType) => {
-    if(this.#filtersModel.filter === filterType) {
+    if (this.#filtersModel.filter === filterType) {
       return;
     }
 
     this.#filtersModel.setFilter(UpdateType.MAJOR, filterType);
   };
 
-  constructor({ headerContainer, filtersModel, pointsModel}) {
+  #checkNoPoints = () => {
+    this.isDisabledFilterBtn = this.#areActivePoints();
+    if (this.isDisabledFilterBtn) {
+      this.#filterComponent.element.querySelector('.trip-filters__filter-input:checked').disabled = true;
+    }
+  };
+
+  constructor({ headerContainer, filtersModel, pointsModel, checkActivPointsNumber}) {
     this.#filterContainer = headerContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
+    this.#areActivePoints = checkActivPointsNumber;
 
     this.#filtersModel.addObserver(this.#handleModelEvent);
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
-  #renderFilter() {
 
+  #renderFilter() {
     const prevFilterComponent = this.#filterComponent;
 
     this.#filterComponent = new FilterView({
@@ -39,7 +49,7 @@ export default class FilterPresenter {
     });
 
     if(prevFilterComponent === null) {
-      render(this.#filterComponent, this.#filterContainer);
+      render(this.#filterComponent, this.#filterContainer,);
       return;
     }
 
@@ -47,12 +57,12 @@ export default class FilterPresenter {
     remove(prevFilterComponent);
   }
 
-
   destroy() {
     remove(this.#filterComponent);
   }
 
   init() {
     this.#renderFilter();
+    this.#checkNoPoints();
   }
 }
