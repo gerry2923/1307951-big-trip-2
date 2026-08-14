@@ -55,7 +55,6 @@ export default class MainPresenter {
   #isLoading = true;
   #isError = false;
   #newPointEventHandler = null;
-  #disableFilter = null;
 
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
@@ -172,15 +171,13 @@ export default class MainPresenter {
   };
 
 
-  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange, disableFilter}) {
+  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange, }) {
     this.#mainContainer = mainContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
     this.#newPointEventHandler = onNewPointChange;
-    this.#disableFilter = disableFilter;
-
 
     this.#pointsModel.addObserver(this.#handleModelPoint);
     this.#filtersModel.addObserver(this.#handleModelPoint);
@@ -327,7 +324,6 @@ export default class MainPresenter {
       this.renderNoPoint();
       return;
     }
-
     this.renderSort();
     this.renderList(points);
 

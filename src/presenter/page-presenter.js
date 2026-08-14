@@ -23,6 +23,7 @@ export default class PagePresenter {
     this.#headerPresenter.renderTripInfo();
   };
 
+
   constructor({ headerContainer, mainContainer, filtersModel, pointsModel,}) {
 
     this.#headerContainer = headerContainer;
@@ -37,9 +38,7 @@ export default class PagePresenter {
   }
 
   #renderPage() {
-
     this.#pointsModel.init();
-
 
     this.#offers = this.#pointsModel.offers;
     this.#destinations = this.#pointsModel.destinations;
