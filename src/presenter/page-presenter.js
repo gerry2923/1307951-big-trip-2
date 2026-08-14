@@ -11,7 +11,6 @@ export default class PagePresenter {
   #offers = null;
   #destinations = null;
 
-
   #addPointButtonClickHandler = () => {
     this.#mainContentPresenter.createPoint();
   };

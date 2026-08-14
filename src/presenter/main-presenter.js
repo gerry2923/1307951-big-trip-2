@@ -55,6 +55,7 @@ export default class MainPresenter {
   #isLoading = true;
   #isError = false;
   #newPointEventHandler = null;
+  #disableFilter = null;
 
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
@@ -140,7 +141,7 @@ export default class MainPresenter {
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
           this.#uiBlocker.unblock();
-          throw new Error();
+          // throw new Error();
         }
         break;
 
@@ -151,7 +152,7 @@ export default class MainPresenter {
         } catch(err) {
           this.#newPointPresenter.setAborting();
           this.#uiBlocker.unblock();
-          throw new Error();
+          // throw new Error();
         }
         break;
 
@@ -162,7 +163,7 @@ export default class MainPresenter {
         } catch(err) {
           this.#pointPresenters.get(update.id).setAborting();
           this.#uiBlocker.unblock();
-          throw new Error();
+          // throw new Error();
         }
         break;
     }
@@ -171,13 +172,14 @@ export default class MainPresenter {
   };
 
 
-  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange, }) {
+  constructor({ mainContainer, filtersModel, pointsModel, offers, destinations, onNewPointChange, disableFilter}) {
     this.#mainContainer = mainContainer;
     this.#filtersModel = filtersModel;
     this.#pointsModel = pointsModel;
     this.#offers = offers;
     this.#destinations = destinations;
     this.#newPointEventHandler = onNewPointChange;
+    this.#disableFilter = disableFilter;
 
 
     this.#pointsModel.addObserver(this.#handleModelPoint);
@@ -189,6 +191,7 @@ export default class MainPresenter {
     this.#filterType = this.#filtersModel.filter;
     const points = this.#pointsModel.points;
     const filteredPoints = filter[this.#filterType](points);
+
 
     switch (this.#currentSortType) {
       case SortTypes.PRICE:
@@ -295,8 +298,9 @@ export default class MainPresenter {
 
     if (resetSortType) {
       this.#currentSortType = SortTypes.DAY;
-
     }
+
+    this.#newPointEventHandler();
   }
 
   #renderLoading() {
@@ -319,7 +323,6 @@ export default class MainPresenter {
     }
 
     const points = this.points;
-
     if (points.length === 0) {
       this.renderNoPoint();
       return;
@@ -327,5 +330,6 @@ export default class MainPresenter {
 
     this.renderSort();
     this.renderList(points);
+
   }
 }
