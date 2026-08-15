@@ -1,5 +1,6 @@
 import 'flatpickr/dist/flatpickr.min.css';
 import { getAllOffersByType, } from '../../utils/point';
+import he from 'he';
 
 const getFirstTitleWord = (text) => text.trim().toLowerCase().split(/\s+/)[0];
 
@@ -31,7 +32,7 @@ const createTypeListTemplate = (types) => {
     options += `
       <div class="event__type-item">
         <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
-        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${he.encode(type)}</label>
       </div>`;
   });
 
@@ -49,7 +50,7 @@ const createOffersTemplate = (point) => {
       offersStr += `<div class="event__offer-selector">
                          <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}" ${point.isDisabled ? 'disabled' : ''} checked>
                          <label class="event__offer-label" for="${offer.id}">
-                           <span class="event__offer-title">${offer.title}</span>
+                           <span class="event__offer-title">${he.encode(offer.title)}</span>
                            &plus;&euro;&nbsp;
                            <span class="event__offer-price">${offer.price}</span>
                          </label>
@@ -58,7 +59,7 @@ const createOffersTemplate = (point) => {
       offersStr += `<div class="event__offer-selector">
                         <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)} ${point.isDisabled ? 'disabled' : ''}">
                         <label class="event__offer-label" for="${offer.id}">
-                          <span class="event__offer-title">${offer.title}</span>
+                          <span class="event__offer-title">${he.encode(offer.title)}</span>
                           &plus;&euro;&nbsp;
                           <span class="event__offer-price">${offer.price}</span>
                         </label>
@@ -94,8 +95,8 @@ const createPictureListTemplate = (point) => {
 
 const createDescriptionTemplate = (point) => `
           <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">${point.destination.name}</h3>
-            <p class="event__destination-description">${point.destination.description}</p>
+            <h3 class="event__section-title  event__section-title--destination">${he.encode(point.destination.name)}</h3>
+            <p class="event__destination-description">${he.encode(point.destination.description)}</p>
           </section>
           ${createPictureListTemplate(point)}`;
 
@@ -121,7 +122,7 @@ export const createEditPointTemplate = (point) => `
                   <div class="event__field-group  event__field-group--destination">
 
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${point.type}
+                      ${he.encode(point.type)}
                     </label>
 
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : ''} autocomplete="off">
