@@ -114,7 +114,6 @@ export default class PointPresenter {
     this.destroy();
     this.#handleNewPointButtonEvent();
     this.#removeFromPresentersSet(this);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleValidationFailure = () => {
@@ -208,6 +207,7 @@ export default class PointPresenter {
     }
 
     remove(this.#pointContainerComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
   renderPoint() {
