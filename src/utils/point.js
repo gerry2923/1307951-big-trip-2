@@ -49,15 +49,10 @@ export const sortClosestDayFirst = (pointA, pointB) => {
 };
 
 
-export const getAllOffersByType = (offers, type = 'flight') => {
-  const isValid = !!offers.length && Array.isArray(offers) && typeof type === 'string';
-
-  if (isValid) {
-    const offs = offers.find((offer) => offer.type === type).offers;
-    return offs;
-  }
-  return [];
-};
+export const getAllOffersByType = (offers, type = 'flight') =>
+  Array.isArray(offers)
+    ? offers.find((offer) => offer.type === type)?.offers || []
+    : [];
 
 /**
  * @param {Array} - offers массив всех предложений для всех типов
@@ -65,19 +60,9 @@ export const getAllOffersByType = (offers, type = 'flight') => {
  * @returns {Array} - массив объектов всех предложений, которые добавлены в точку
  */
 
-export const getSelectedOffers = (offers, offersIds, type = 'flight') => {
-  const isValid = !!offers.length &&
-    !!offersIds.length &&
-    Array.isArray(offers) &&
-    Array.isArray(offersIds) &&
-    typeof type === 'string';
-
-  if (isValid) {
-    const offersByType = offers.find((offer) => offer.type === type).offers;
-    const ids = new Set(offersIds);
-    return offersByType.filter((offer) => ids.has(offer.id));
-  }
-};
+export const getSelectedOffers = (offers, offersIds, type = 'flight') => offers
+  .find((offerBlock) => offerBlock.type === type)?.offers
+  ?.filter((offer) => offersIds.includes(offer.id)) ?? [];
 
 /**
  * @param {*} dateA
