@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
-import { MONTH } from '../const';
+import { MONTHS } from '../const';
 
 dayjs.extend(duration);
 dayjs.extend(isBetween);
@@ -167,7 +167,7 @@ export const getCustomTime = (travelDate) => {
 
 export const getMonthDay = (travelDate) => {
   const date = new Date(travelDate);
-  return `${MONTH[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2, '0')}`;
+  return `${MONTHS[date.getUTCMonth()]} ${String(date.getUTCDate()).padStart(2, '0')}`;
 };
 
 export const changeToFirstCapitalLetter = (incomingString) => {
