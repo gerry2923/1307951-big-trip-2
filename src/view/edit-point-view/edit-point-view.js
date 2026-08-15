@@ -78,7 +78,7 @@ export default class EditPointView extends AbstractStatefulView {
 
     const isDestination = allDestinations.some((destin) => destin.name === destination.name);
     const areDatesSelected = !!dateFrom && !!dateTo;
-    const isDatesOrderCorrect = dayjs(dateTo).isAfter(dayjs(dateFrom));
+    const isDatesOrderCorrect = dayjs(dateFrom).isBefore(dayjs(dateTo));
     const priceAsNumber = Number(basePrice);
     const isPrice = Number.isInteger(basePrice) && (priceAsNumber > 0);
 

@@ -319,6 +319,7 @@ export default class MainPresenter {
     }
 
     const points = this.points;
+
     if (points.length === 0) {
       this.renderNoPoint();
       return;

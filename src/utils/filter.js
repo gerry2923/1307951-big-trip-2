@@ -4,7 +4,7 @@ import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 
 export const filter = {
-  [FilterTypes.EVERYTHING]: (points) => points,
+  [FilterTypes.EVERYTHING]: (points) => [...points],
 
   [FilterTypes.FUTURE]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateFrom)) < 0),
   [FilterTypes.PRESENT]: (points) => points.filter((point) =>

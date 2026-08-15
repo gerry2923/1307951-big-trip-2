@@ -1,6 +1,6 @@
 import FilterView from '../view/filter-view/filter-view';
 import { render, replace, remove } from '../framework/render';
-import { UpdateType } from '../const';
+import { FilterTypes, UpdateType } from '../const';
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -27,6 +27,10 @@ export default class FilterPresenter {
     if (this.isDisabledFilterBtn) {
       this.#filterComponent.element.querySelector('.trip-filters__filter-input:checked').disabled = true;
     }
+  };
+
+  resetFilter = () => {
+    this.#handleFilterTypeChange(FilterTypes.EVERYTHING);
   };
 
   constructor({ headerContainer, filtersModel, pointsModel, checkActivPointsNumber}) {

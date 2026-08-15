@@ -116,31 +116,42 @@ export const clearElement = (element) => {
 
 /**
  *
- * @param {String} dateFrom ISO string like 2026-02-05T22:55:56.845Z
- * @param {String} dateTo ISO string 2026-02-06T11:22:13.375Z
+ * @param {String} startISO ISO string like 2026-02-05T22:55:56.845Z
+ * @param {String} endISO ISO string 2026-02-06T11:22:13.375Z
  * @return {String} custom date format 02D 15M 00M
  */
 
 export const getDateDifference = (startISO, endISO) => {
-  const startDate = dayjs(startISO);
-  const endDate = dayjs(endISO);
+  const startDateRaw = dayjs(startISO);
+  const endDateRaw = dayjs(endISO);
 
-  if (!startDate.isValid() || !endDate.isValid()) {
+  if (!startDateRaw.isValid() || !endDateRaw.isValid()) {
     throw new Error('Неверный формат даты. Ожидается ISO 8601.');
   }
 
-  if (startDate.isAfter(endDate)) {
+  if (startDateRaw.isAfter(endDateRaw)) {
     throw new Error('Дата "До" не может быть позже даты "После".');
   }
 
-  const diffDuration = dayjs.duration(endDate.diff(startDate));
+  const startDate = startDateRaw.startOf('minute');
+  const endDate = endDateRaw.startOf('minute');
 
-  const days = Math.floor(diffDuration.asDays());
+  const diffMs = endDate.diff(startDate);
+  const diffDuration = dayjs.duration(diffMs);
 
+  const totalMinutes = Math.floor(diffDuration.asMinutes());
   const hours = diffDuration.hours();
   const minutes = diffDuration.minutes();
+  const days = Math.floor(diffDuration.asDays());
 
-  return `${days}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+
+  if (totalMinutes < 60) {
+    return `${minutes}M`;
+  } else if (days < 1) {
+    return `${hours}H ${String(minutes).padStart(2, '0')}M`;
+  } else {
+    return `${days}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+  }
 };
 
 /**

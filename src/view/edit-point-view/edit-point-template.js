@@ -45,7 +45,7 @@ const createOffersTemplate = (point) => {
   let offersStr = '';
 
   allOffersByType.forEach((offer) => {
-    if(idsSelectedOffers.has(offer.id)) {
+    if (idsSelectedOffers.has(offer.id)) {
       offersStr += `<div class="event__offer-selector">
                          <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${getFirstTitleWord(offer.title)}" ${point.isDisabled ? 'disabled' : ''} checked>
                          <label class="event__offer-label" for="${offer.id}">
@@ -92,12 +92,13 @@ const createPictureListTemplate = (point) => {
         </div>` : '';
 };
 
-const createDescriptionTemplate = (point) => point.destination.description ? `
+const createDescriptionTemplate = (point) => `
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">${point.destination.name}</h3>
             <p class="event__destination-description">${point.destination.description}</p>
           </section>
-          ${createPictureListTemplate(point)}` : '';
+          ${createPictureListTemplate(point)}`;
+
 
 export const createEditPointTemplate = (point) => `
               <form class="event event--edit" action="#" method="post">
@@ -123,7 +124,7 @@ export const createEditPointTemplate = (point) => `
                       ${point.type}
                     </label>
 
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : '' } autocomplete="off">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name || ''}" placeholder="Выберите из списка" list="destination-list-1" ${point.isDisabled ? 'disabled' : ''} autocomplete="off">
 
                     <datalist id="destination-list-1">
                       ${createDestinationListTemplate(point.destinationsOptions)}
@@ -158,5 +159,4 @@ export const createEditPointTemplate = (point) => `
                   ${point.destination !== '' ? createDescriptionTemplate(point) : ''}
 
                 </section>
-              </form>
-`;
+              </form>`;

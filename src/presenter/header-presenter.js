@@ -34,6 +34,7 @@ export default class HeaderPresenter {
   #isLoading = true;
 
   #disableNewPointButton = () => {
+    this.#filterPresenter.resetFilter();
     this.#newButtonComponent.isDisabled = true;
     this.#newButtonComponent.rerenderButton();
 
