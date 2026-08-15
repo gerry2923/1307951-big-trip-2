@@ -1,17 +1,17 @@
-import { FilterTypes } from '../const';
+import { FilterType } from '../const';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 
 export const filter = {
-  [FilterTypes.EVERYTHING]: (points) => [...points],
+  [FilterType.EVERYTHING]: (points) => [...points],
 
-  [FilterTypes.FUTURE]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateFrom)) < 0),
-  [FilterTypes.PRESENT]: (points) => points.filter((point) =>
+  [FilterType.FUTURE]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateFrom)) < 0),
+  [FilterType.PRESENT]: (points) => points.filter((point) =>
     (dayjs.utc().diff(dayjs(point.dateFrom)) >= 0) &&
     (dayjs.utc().diff(dayjs(point.dateTo)) <= 0)),
 
-  [FilterTypes.PAST]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateTo)) > 0),
+  [FilterType.PAST]: (points) => points.filter((point) => dayjs.utc().diff(dayjs(point.dateTo)) > 0),
 };
 
 export const generateFilter = (points) => Object.entries(filter).map(

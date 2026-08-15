@@ -8,7 +8,7 @@ import LoadingView from '../view/loading-view/loading-view';
 import ErrorView from '../view/error-view/error-view';
 
 import { render, remove } from '../framework/render';
-import { FilterTypes, SortTypes, UpdateType, UserAction } from '../const';
+import { FilterType, SortType, UpdateType, UserAction } from '../const';
 import { sortDurationDown, sortPriceDown, sortClosestDayFirst } from '../utils/point';
 import { filter } from '../utils/filter';
 
@@ -49,8 +49,8 @@ export default class MainPresenter {
   #selectElementsData = null;
   listItem = null;
 
-  #currentSortType = SortTypes.DAY;
-  #filterType = FilterTypes.EVERYTHING;
+  #currentSortType = SortType.DAY;
+  #filterType = FilterType.EVERYTHING;
 
   #isLoading = true;
   #isError = false;
@@ -190,11 +190,11 @@ export default class MainPresenter {
 
 
     switch (this.#currentSortType) {
-      case SortTypes.PRICE:
+      case SortType.PRICE:
         return filteredPoints.sort(sortPriceDown);
-      case SortTypes.TIME:
+      case SortType.TIME:
         return filteredPoints.sort(sortDurationDown);
-      case SortTypes.DAY:
+      case SortType.DAY:
         return filteredPoints.sort(sortClosestDayFirst);
     }
   }
@@ -293,7 +293,7 @@ export default class MainPresenter {
     }
 
     if (resetSortType) {
-      this.#currentSortType = SortTypes.DAY;
+      this.#currentSortType = SortType.DAY;
     }
 
     this.#newPointEventHandler();

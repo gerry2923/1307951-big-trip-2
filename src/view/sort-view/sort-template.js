@@ -1,10 +1,10 @@
-import { SortTypes } from '../../const';
+import { SortType } from '../../const';
 
 export const createSortTemplate = (sortType) => `
             <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
             <div class="trip-sort__item  trip-sort__item--day">
-              <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" ${sortType === SortTypes.DAY ? 'checked' : ''}>
-              <label class="trip-sort__btn" for="sort-day" data-sort-type="${SortTypes.DAY}">Day</label>
+              <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" ${sortType === SortType.DAY ? 'checked' : ''}>
+              <label class="trip-sort__btn" for="sort-day" data-sort-type="${SortType.DAY}">Day</label>
             </div>
 
             <div class="trip-sort__item  trip-sort__item--event">
@@ -13,13 +13,13 @@ export const createSortTemplate = (sortType) => `
             </div>
 
             <div class="trip-sort__item  trip-sort__item--time">
-              <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" ${sortType === SortTypes.TIME ? 'checked' : ''}>
-              <label class="trip-sort__btn" for="sort-time" data-sort-type="${SortTypes.TIME}">Time</label>
+              <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" ${sortType === SortType.TIME ? 'checked' : ''}>
+              <label class="trip-sort__btn" for="sort-time" data-sort-type="${SortType.TIME}">Time</label>
             </div>
 
             <div class="trip-sort__item  trip-sort__item--price">
-              <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" ${sortType === SortTypes.PRICE ? 'checked' : ''}>
-              <label class="trip-sort__btn" for="sort-price" data-sort-type="${SortTypes.PRICE}">Price</label>
+              <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" ${sortType === SortType.PRICE ? 'checked' : ''}>
+              <label class="trip-sort__btn" for="sort-price" data-sort-type="${SortType.PRICE}">Price</label>
             </div>
 
             <div class="trip-sort__item  trip-sort__item--offer">

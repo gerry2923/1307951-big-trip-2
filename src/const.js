@@ -1,13 +1,13 @@
 export const MONTH = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
-export const FilterTypes = {
+export const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
 };
 
-export const SortTypes = {
+export const SortType = {
   DAY: 'day',
   PRICE: 'price',
   TIME: 'duration',

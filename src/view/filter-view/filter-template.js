@@ -1,4 +1,4 @@
-import { FilterTypes } from '../../const';
+import { FilterType } from '../../const';
 
 export const createDisabledFilterTemplate = () => `
           <div class="trip-main__trip-controls  trip-controls">
@@ -37,22 +37,22 @@ export const createFilterTemplate = (filterType) =>`
               <form class="trip-filters" action="#" method="get">
 
                 <div class="trip-filters__filter">
-                  <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" ${FilterTypes.EVERYTHING === filterType ? 'checked' : ''}>
+                  <input id="filter-everything" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="everything" ${FilterType.EVERYTHING === filterType ? 'checked' : ''}>
                   <label class="trip-filters__filter-label" for="filter-everything">Everything</label>
                 </div>
 
                 <div class="trip-filters__filter">
-                  <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${FilterTypes.FUTURE === filterType ? 'checked' : ''}>
+                  <input id="filter-future" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="future" ${FilterType.FUTURE === filterType ? 'checked' : ''}>
                   <label class="trip-filters__filter-label" for="filter-future">Future</label>
                 </div>
 
                 <div class="trip-filters__filter">
-                  <input id="filter-present" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="present" ${FilterTypes.PRESENT === filterType ? 'checked' : ''}>
+                  <input id="filter-present" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="present" ${FilterType.PRESENT === filterType ? 'checked' : ''}>
                   <label class="trip-filters__filter-label" for="filter-present">Present</label>
                 </div>
 
                 <div class="trip-filters__filter">
-                  <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${FilterTypes.PAST === filterType ? 'checked' : ''}>
+                  <input id="filter-past" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="past" ${FilterType.PAST === filterType ? 'checked' : ''}>
                   <label class="trip-filters__filter-label" for="filter-past">Past</label>
                 </div>
 

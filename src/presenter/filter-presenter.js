@@ -1,6 +1,6 @@
 import FilterView from '../view/filter-view/filter-view';
 import { render, replace, remove } from '../framework/render';
-import { FilterTypes, UpdateType } from '../const';
+import { FilterType, UpdateType } from '../const';
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -30,7 +30,7 @@ export default class FilterPresenter {
   };
 
   resetFilter = () => {
-    this.#handleFilterTypeChange(FilterTypes.EVERYTHING);
+    this.#handleFilterTypeChange(FilterType.EVERYTHING);
   };
 
   constructor({ headerContainer, filtersModel, pointsModel, checkActivPointsNumber}) {
