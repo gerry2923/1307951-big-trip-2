@@ -62,6 +62,8 @@ export default class FilterPresenter {
   }
 
   destroy() {
+    this.#filtersModel.removeObserver(this.#handleModelEvent);
+    this.#pointsModel.removeObserver(this.#handleModelEvent);
     remove(this.#filterComponent);
   }
 
