@@ -5,7 +5,7 @@ export default class SortView extends AbstractView {
   #handleSortTypeChange = null;
   #currentSortType = null;
 
-  #sortTypeChange = (evt) => {
+  #sortTypeChangeHandler = (evt) => {
     if(evt.target.tagName !== 'LABEL' || !evt.target.hasAttribute('data-sort-type')) {
       return;
     }
@@ -18,7 +18,7 @@ export default class SortView extends AbstractView {
     super();
     this.#currentSortType = currentSortType;
     this.#handleSortTypeChange = onSortTypeChange;
-    this.element.addEventListener('click', this.#sortTypeChange);
+    this.element.addEventListener('click', this.#sortTypeChangeHandler);
   }
 
   get template() {
