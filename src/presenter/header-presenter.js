@@ -185,10 +185,9 @@ export default class HeaderPresenter {
     this.renderNewPointButton();
   }
 
-  #checkActivPointsNumber = () => {
-    const filterType = this.#filtersModel.filter;
+  #checkActivPointsNumber = (filterToCheck) => {
     const points = this.#pointsModel.points;
-    const filteredPoints = filter[filterType](points);
+    const filteredPoints = filter[filterToCheck](points);
     return filteredPoints.length === 0;
   };
 

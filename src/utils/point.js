@@ -90,7 +90,9 @@ export const getTripDatePeriod = (date1, date2) => {
   const dayFrom = dayjs(date1);
   const dayTo = dayjs(date2);
 
-  if(dayFrom.diff(dayTo, 'month') === 0) {
+  const daysDifference = ((new Date(date2)).getMonth() - (new Date(date1)).getMonth());
+
+  if(daysDifference === 0) {
     return {
       dayStart: `${dayFrom.format('DD')}`,
       dayFinish: `${dayTo.format('DD')} ${dayTo.format('MMM')}`,

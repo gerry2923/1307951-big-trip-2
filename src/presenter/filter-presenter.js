@@ -7,7 +7,6 @@ export default class FilterPresenter {
   #filterComponent = null;
   #filtersModel = null;
   #pointsModel = null;
-  #isDisabledFilterBtn = false;
   #areActivePoints = null;
 
   #handleModelEvent = () => {
@@ -23,10 +22,11 @@ export default class FilterPresenter {
   };
 
   #checkNoPoints = () => {
-    this.isDisabledFilterBtn = this.#areActivePoints();
-    if (this.isDisabledFilterBtn) {
-      this.#filterComponent.element.querySelector('.trip-filters__filter-input:checked').disabled = true;
-    }
+    Object.values(FilterType).forEach((filterName) => {
+      if(this.#areActivePoints(filterName)){
+        this.#filterComponent.disableFilterButton(filterName);
+      }
+    });
   };
 
   resetFilter = () => {

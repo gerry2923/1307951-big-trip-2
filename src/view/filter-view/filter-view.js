@@ -31,5 +31,8 @@ export default class FilterView extends AbstractView{
     return createFilterTemplate(this.#currentFilter);
   }
 
+  disableFilterButton = (filterName) => {
+    this.element.querySelector(`#filter-${filterName}`).disabled = true;
+  };
 
 }
