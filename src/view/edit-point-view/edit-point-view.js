@@ -60,16 +60,16 @@ export default class EditPointView extends AbstractStatefulView {
   };
 
   #dateFromChangeHandler = ([userDate]) => {
-    const dateFromStr = moment.utc(userDate).toISOString();
+    const pointStartDate = moment.utc(userDate).toISOString();
     this.updateElement({
-      dateFrom: dateFromStr,
+      dateFrom: pointStartDate,
     });
   };
 
   #dateToChangeHandler = ([userDate]) => {
-    const dateToStr = moment.utc(userDate).toISOString();
+    const pointEndDate = moment.utc(userDate).toISOString();
     this.updateElement({
-      dateTo: dateToStr,
+      dateTo: pointEndDate,
     });
   };
 
@@ -79,8 +79,8 @@ export default class EditPointView extends AbstractStatefulView {
     const isDestination = allDestinations.some((destinationItem) => destinationItem.name === destination.name);
     const areDatesSelected = !!dateFrom && !!dateTo;
     const isDatesOrderCorrect = dayjs(dateFrom).isBefore(dayjs(dateTo));
-    const priceAsNumber = Number(basePrice);
-    const isPrice = Number.isInteger(basePrice) && (priceAsNumber > 0);
+    const checkedPrice = Number(basePrice);
+    const isPrice = Number.isInteger(basePrice) && (checkedPrice > 0);
 
     return (
       isDestination &&
